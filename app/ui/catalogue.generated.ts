@@ -4,6 +4,7 @@ export type CatalogueCourse = { code: string; title: string; lessons: CatalogueL
 export type CataloguePath = {
   code: string;
   title: string;
+  section: string;
   audience: string;
   courses: CatalogueCourse[];
 };
@@ -12,6 +13,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PUB-01",
     "title": "Public Administration Foundations",
+    "section": "PUBLIC SECTOR PATHS",
     "audience": "L1 · New entrants, junior officers, staff needing grounding in how government works",
     "courses": [
       {
@@ -107,6 +109,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PUB-02",
     "title": "Public Financial Management & Procurement",
+    "section": "PUBLIC SECTOR PATHS",
     "audience": "L2 · Finance officers, accountants, procurement staff, budget desk officers",
     "courses": [
       {
@@ -206,6 +209,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PUB-03",
     "title": "Revenue & Tax Administration",
+    "section": "PUBLIC SECTOR PATHS",
     "audience": "L2 · Revenue service staff, state IRS officers, tax practitioners",
     "courses": [
       {
@@ -309,6 +313,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PUB-04",
     "title": "Governance, Ethics & Anti-Corruption",
+    "section": "PUBLIC SECTOR PATHS",
     "audience": "L2 · All officers; mandatory-compliance candidate",
     "courses": [
       {
@@ -404,6 +409,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PUB-05",
     "title": "Citizen Service & Frontline Delivery",
+    "section": "PUBLIC SECTOR PATHS",
     "audience": "L1 · Front desk, registry, service windows, call handlers",
     "courses": [
       {
@@ -499,6 +505,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PUB-06",
     "title": "Policy, Planning, Monitoring & Evaluation",
+    "section": "PUBLIC SECTOR PATHS",
     "audience": "L2–L3 · Planning officers, research and statistics units, policy advisers",
     "courses": [
       {
@@ -598,6 +605,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PUB-07",
     "title": "Public Sector Leadership & Executive Development",
+    "section": "PUBLIC SECTOR PATHS",
     "audience": "L3 · Directors, permanent secretaries, agency heads, LGA chairmen",
     "courses": [
       {
@@ -715,6 +723,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PUB-08",
     "title": "Digital Government & E-Governance",
+    "section": "PUBLIC SECTOR PATHS",
     "audience": "L2 · ICT units, reform teams, service owners",
     "courses": [
       {
@@ -810,6 +819,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PUB-09",
     "title": "Local Government Administration",
+    "section": "PUBLIC SECTOR PATHS",
     "audience": "L2 · LGA staff, council officers, chairmen and supervisory councillors",
     "courses": [
       {
@@ -905,6 +915,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PUB-10",
     "title": "Public Sector HR & Workforce Management",
+    "section": "PUBLIC SECTOR PATHS",
     "audience": "L2 · HR and establishment officers, service commissions",
     "courses": [
       {
@@ -1000,6 +1011,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PUB-11",
     "title": "Records, Information & Data Governance",
+    "section": "PUBLIC SECTOR PATHS",
     "audience": "L2 · Registry staff, ICT, FOI desk officers, data protection leads",
     "courses": [
       {
@@ -1121,6 +1133,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PRI-01",
     "title": "Entrepreneurship & MSME Growth",
+    "section": "PRIVATE SECTOR PATHS",
     "audience": "L1 · Founders, small business owners, traders formalising",
     "courses": [
       {
@@ -1216,6 +1229,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PRI-02",
     "title": "Finance, Accounting & Tax for Business",
+    "section": "PRIVATE SECTOR PATHS",
     "audience": "L1–L2 · Business owners, finance staff, non-finance managers",
     "courses": [
       {
@@ -1341,6 +1355,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PRI-03",
     "title": "Sales & Business Development",
+    "section": "PRIVATE SECTOR PATHS",
     "audience": "L1–L2 · Sales executives, account managers, business owners",
     "courses": [
       {
@@ -1458,6 +1473,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PRI-04",
     "title": "Marketing, Brand & Digital Growth",
+    "section": "PRIVATE SECTOR PATHS",
     "audience": "L1–L2 · Marketing staff, founders, comms teams",
     "courses": [
       {
@@ -1553,6 +1569,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PRI-05",
     "title": "Leadership & People Management",
+    "section": "PRIVATE SECTOR PATHS",
     "audience": "L2–L3 · New and experienced managers, senior leadership",
     "courses": [
       {
@@ -1656,6 +1673,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PRI-06",
     "title": "Human Resources & Talent",
+    "section": "PRIVATE SECTOR PATHS",
     "audience": "L2 · HR generalists, office managers, owner-managers",
     "courses": [
       {
@@ -1751,6 +1769,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PRI-07",
     "title": "Project & Programme Management",
+    "section": "PRIVATE SECTOR PATHS",
     "audience": "L2–L3 · Project managers, delivery leads, PMO staff",
     "courses": [
       {
@@ -1868,6 +1887,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PRI-08",
     "title": "Data & Analytics",
+    "section": "PRIVATE SECTOR PATHS",
     "audience": "L1–L3 · Analysts, managers, anyone working with numbers",
     "courses": [
       {
@@ -1997,6 +2017,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PRI-09",
     "title": "Technology, Cloud & Infrastructure",
+    "section": "PRIVATE SECTOR PATHS",
     "audience": "L2–L3 · IT staff, systems administrators, technical teams",
     "courses": [
       {
@@ -2104,6 +2125,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PRI-10",
     "title": "Cybersecurity & Information Security",
+    "section": "PRIVATE SECTOR PATHS",
     "audience": "L1–L3 · All staff (M1) through to security specialists (M5)",
     "courses": [
       {
@@ -2241,6 +2263,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "PRI-11",
     "title": "Customer Experience & Service Operations",
+    "section": "PRIVATE SECTOR PATHS",
     "audience": "L1–L2 · Contact centres, retail, hospitality, service businesses",
     "courses": [
       {
@@ -2336,6 +2359,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "X-01",
     "title": "Digital Workplace Foundations",
+    "section": "CROSS-CUTTING PATHS",
     "audience": "L1 · Universal entry path for low digital confidence",
     "courses": [
       {
@@ -2461,6 +2485,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "X-02",
     "title": "Professional & Personal Effectiveness",
+    "section": "CROSS-CUTTING PATHS",
     "audience": "L1–L2 · Every learner, every sector",
     "courses": [
       {
@@ -2586,6 +2611,7 @@ export const atlasCatalogue: CataloguePath[] = [
   {
     "code": "X-03",
     "title": "AI & Emerging Technology",
+    "section": "CROSS-CUTTING PATHS",
     "audience": "L1–L2 · The attention-winning path; sells the whole catalogue",
     "courses": [
       {

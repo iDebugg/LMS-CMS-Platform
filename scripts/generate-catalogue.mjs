@@ -12,12 +12,20 @@ const lines = markdown.split(/\r?\n/);
 const paths = [];
 let currentPath;
 let currentCourse;
+let currentSection = "";
 
 for (const raw of lines) {
   const line = raw.trim();
+  const sectionMatch = line.match(/^\.?#\s+PART\s+[A-C]\s+[—-]\s+(.+)$/);
+  if (sectionMatch) {
+    currentSection = sectionMatch[1].trim();
+    currentPath = undefined;
+    currentCourse = undefined;
+    continue;
+  }
   const pathMatch = line.match(/^##\s+((?:PUB|PRI|X)-\d{2})\s+[—-]\s+(.+)$/);
   if (pathMatch) {
-    currentPath = { code: pathMatch[1], title: pathMatch[2].trim(), audience: "", courses: [] };
+    currentPath = { code: pathMatch[1], title: pathMatch[2].trim(), section: currentSection, audience: "", courses: [] };
     paths.push(currentPath);
     currentCourse = undefined;
     continue;
@@ -51,6 +59,7 @@ export type CatalogueCourse = { code: string; title: string; lessons: CatalogueL
 export type CataloguePath = {
   code: string;
   title: string;
+  section: string;
   audience: string;
   courses: CatalogueCourse[];
 };

@@ -1,0 +1,476 @@
+/* Course Studio layout overrides live separately so the authoring workspace
+   remains predictable as the wider Atlas stylesheet evolves. */
+.course-studio {
+  background: linear-gradient(135deg, #f7f7fb 0%, #f3f2f8 100%);
+  --studio-label-weight: 600;
+  --studio-control-weight: 480;
+  --studio-title-weight: 520;
+}
+
+/* One typography rhythm across every authoring section. Global CMS button and
+   input rules are intentionally neutralised here so forms do not alternate
+   between very light and extra-bold text. */
+.course-studio input,
+.course-studio textarea,
+.course-studio select,
+.course-studio button {
+  font-weight: var(--studio-control-weight);
+}
+
+.course-studio label,
+.course-studio .studio-form label,
+.course-studio .appearance-grid label,
+.course-studio .module-objective label {
+  font-weight: var(--studio-label-weight);
+}
+
+.course-studio label > b,
+.course-studio .toggle-line b,
+.course-studio .rules-list b,
+.course-studio .studio-health > span {
+  font-weight: 620;
+}
+
+.course-studio .button,
+.course-studio .studio-nav > button.active {
+  font-weight: 620;
+}
+
+.studio-header > div:nth-child(2) input {
+  font-weight: var(--studio-title-weight);
+}
+
+.studio-form input,
+.studio-form select,
+.studio-form textarea,
+.appearance-grid input,
+.module-objective input {
+  color: #242330;
+  font-weight: var(--studio-control-weight);
+}
+
+.studio-form textarea::placeholder,
+.studio-form input::placeholder,
+.module-objective input::placeholder {
+  color: #9a98a6;
+  font-weight: 430;
+}
+
+.studio-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  column-gap: 30px;
+  margin-bottom: 24px;
+}
+
+.studio-heading span,
+.studio-heading h1,
+.studio-heading p {
+  grid-column: 1;
+}
+
+.studio-heading h1 {
+  max-width: 920px;
+  margin: 8px 0 12px;
+  font-size: clamp(31px, 2.8vw, 44px);
+  line-height: 1.05;
+}
+
+.studio-heading p {
+  margin: 0;
+}
+
+.studio-heading::after {
+  content: "";
+  grid-column: 2;
+  grid-row: 1 / 4;
+  width: 92px;
+  height: 92px;
+  border: 1px solid #ded8f8;
+  border-radius: 28px;
+  background: linear-gradient(145deg, #e8e3ff, #f8f6ff);
+}
+
+.overview-workspace,
+.assessment-workspace,
+.completion-workspace,
+.certificate-workspace,
+.access-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  gap: 18px;
+  align-items: stretch;
+}
+
+.overview-workspace > .studio-form {
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 10px 32px rgba(42, 34, 85, 0.045);
+}
+
+.overview-workspace .studio-form label,
+.assessment-workspace .studio-form label,
+.certificate-workspace .studio-form label,
+.access-workspace .studio-form label {
+  font-size: 12px;
+  letter-spacing: -0.005em;
+}
+
+.overview-guidance {
+  position: sticky;
+  top: 185px;
+  min-height: 360px;
+  padding: 24px;
+  border-radius: 22px;
+  color: #fff;
+  background: linear-gradient(145deg, #2b2557, #453a8a);
+  box-shadow: 0 18px 42px rgba(44, 35, 91, 0.18);
+}
+
+.overview-guidance > span,
+.assessment-summary > span,
+.reach-summary > span {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 15px;
+  background: #e8e3ff;
+  color: var(--purple);
+}
+
+.overview-guidance > span {
+  color: #26214f;
+  background: #8ce0c3;
+}
+
+.overview-guidance > small,
+.assessment-summary > small,
+.completion-summary > small,
+.reach-summary > small {
+  display: block;
+  margin-top: 22px;
+  color: var(--purple);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+}
+
+.overview-guidance > small {
+  margin-top: 25px;
+  color: #bdb5fa;
+}
+
+.overview-guidance h3,
+.assessment-summary h3,
+.reach-summary h3 {
+  margin: 7px 0;
+  font-size: 22px;
+}
+
+.overview-guidance p,
+.assessment-summary p,
+.completion-summary p,
+.reach-summary p {
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.overview-guidance p {
+  color: #d4d0eb;
+}
+
+.overview-guidance > div {
+  display: flex;
+  gap: 6px;
+  margin: 18px 0;
+}
+
+.overview-guidance > div b {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  font-size: 10px;
+}
+
+.overview-guidance ul {
+  margin: 20px 0 0;
+  padding: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  list-style: none;
+}
+
+.overview-guidance li {
+  padding: 10px 0;
+  color: #aaa5ca;
+  font-size: 11px;
+}
+
+.overview-guidance li::before {
+  content: "○";
+  margin-right: 8px;
+}
+
+.overview-guidance li.done {
+  color: #8ce0c3;
+}
+
+.overview-guidance li.done::before {
+  content: "✓";
+}
+
+.assessment-summary,
+.completion-summary,
+.reach-summary {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 10px 32px rgba(42, 34, 85, 0.045);
+}
+
+.assessment-summary p,
+.reach-summary p {
+  color: var(--muted);
+}
+
+.assessment-summary > div {
+  display: inline-flex;
+  flex-direction: column;
+  margin: 12px 6px 18px 0;
+  padding: 11px 16px;
+  border-radius: 12px;
+  background: #f5f3fb;
+}
+
+.assessment-summary > div b {
+  font-size: 22px;
+}
+
+.assessment-summary > div small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.assessment-summary button {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #fff;
+  font-weight: 560;
+}
+
+.completion-summary {
+  border: 0;
+  background: linear-gradient(145deg, #292450, #5445a9);
+  color: #fff;
+}
+
+.completion-summary > small {
+  margin-top: 0;
+  color: #9fe3ca;
+}
+
+.completion-summary > strong {
+  display: block;
+  margin-top: 20px;
+  font-size: 66px;
+  line-height: 1;
+}
+
+.completion-summary h3 {
+  margin: 6px 0;
+  font-size: 18px;
+}
+
+.completion-summary p {
+  color: #c9c5e0;
+}
+
+.completion-summary > div {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 11px;
+}
+
+.certificate-mini {
+  display: flex;
+  min-height: 340px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 27px;
+  border: 8px solid #fff;
+  border-radius: 22px;
+  outline: 1px solid var(--line);
+  text-align: center;
+  box-shadow: 0 12px 34px rgba(42, 34, 85, 0.08);
+}
+
+.certificate-mini > svg {
+  width: 38px;
+  height: 38px;
+}
+
+.certificate-mini > small {
+  margin: 20px 0;
+  font-size: 9px;
+  letter-spacing: 0.15em;
+}
+
+.certificate-mini h3 {
+  margin: 4px;
+  font-family: Georgia, serif;
+  font-size: 29px;
+}
+
+.certificate-mini p {
+  color: #777483;
+  font-family: Georgia, serif;
+  font-style: italic;
+}
+
+.certificate-mini h4 {
+  margin: 5px;
+  font-size: 16px;
+}
+
+.certificate-mini > div {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-top: 25px;
+  padding-top: 13px;
+  border-top: 1px solid currentColor;
+  font-size: 9px;
+}
+
+.reach-summary > strong {
+  display: block;
+  margin-top: 20px;
+  color: var(--ink);
+  font-size: 50px;
+  line-height: 1;
+}
+
+.reach-summary > div {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+  color: #278165;
+  font-size: 11px;
+}
+
+/* Curriculum uses the same card hierarchy and medium-weight controls as the
+   other tabs, while retaining faster scanning for long lesson lists. */
+.curriculum-studio {
+  gap: 22px;
+}
+
+.module-studio {
+  border-color: #e5e3ed;
+  box-shadow: 0 12px 34px rgba(42, 34, 85, 0.055);
+}
+
+.module-studio > header input {
+  font-size: 17px;
+  font-weight: 560;
+  letter-spacing: -0.015em;
+}
+
+.module-studio > header textarea {
+  font-weight: 430;
+}
+
+.module-objective {
+  border-bottom: 1px solid #eceaf2;
+}
+
+.module-objective input:not([type="checkbox"]) {
+  font-weight: 450;
+}
+
+.studio-lessons article {
+  grid-template-columns: 38px minmax(0, 1fr) 34px;
+  padding: 18px 8px;
+  border-radius: 12px;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.studio-lessons article:hover {
+  background: #f8f7fc;
+  transform: translateX(2px);
+}
+
+.studio-lessons article > span {
+  padding-top: 3px;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.studio-lessons article > div > input {
+  margin-bottom: 11px;
+  color: #2d2b36;
+  font-size: 15px;
+  font-weight: var(--studio-title-weight);
+  letter-spacing: -0.01em;
+}
+
+.studio-lessons select,
+.studio-lessons article > div button {
+  min-height: 42px;
+  color: #45434f;
+  font-size: 12px;
+  font-weight: var(--studio-control-weight);
+}
+
+.add-lesson,
+.add-module {
+  font-size: 13px;
+  font-weight: 560;
+}
+
+@media (max-width: 1050px) {
+  .overview-workspace,
+  .assessment-workspace,
+  .completion-workspace,
+  .certificate-workspace,
+  .access-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-guidance {
+    position: static;
+    min-height: 0;
+  }
+
+  .studio-heading::after {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .studio-heading {
+    display: block;
+  }
+
+  .studio-heading h1 {
+    font-size: 32px;
+  }
+
+  .overview-workspace > .studio-form {
+    padding: 16px;
+  }
+}

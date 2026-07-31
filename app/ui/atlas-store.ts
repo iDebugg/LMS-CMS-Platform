@@ -4,10 +4,22 @@ import { useEffect, useState } from "react";
 import type { Course } from "./data";
 import { atlasCatalogue, type CatalogueLesson } from "./catalogue.generated";
 
+export type AtlasLesson = CatalogueLesson & {
+  type?: "Video" | "Text" | "Document" | "Audio" | "Scenario" | "Activity";
+  mediaId?: string;
+  duration?: string;
+  objective?: string;
+  completionRule?: string;
+  required?: boolean;
+};
+
 export type AtlasModule = {
   code: string;
   title: string;
-  lessons: CatalogueLesson[];
+  description?: string;
+  objective?: string;
+  required?: boolean;
+  lessons: AtlasLesson[];
 };
 
 export type AtlasCourse = Course & {
@@ -25,6 +37,16 @@ export type AtlasCourse = Course & {
   curriculum: AtlasModule[];
   lifecycle: "Draft" | "In review" | "Published" | "Archived";
   updatedAt: string;
+  fullDescription?: string;
+  secondaryCategories?: string[];
+  skills?: string[];
+  objectives?: string[];
+  language?: string;
+  introMediaId?: string;
+  thumbnail?: string;
+  completionRule?: string;
+  certificateEnabled?: boolean;
+  version?: string;
 };
 
 export type AtlasAssignment = {
