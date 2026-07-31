@@ -4,7 +4,7 @@ import {
   ArrowLeft, ArrowRight, Award, BookOpen, Check, CheckCircle2, ChevronDown,
   ChevronLeft, ChevronRight, CircleHelp, Clock3, Eye, EyeOff, FileText,
   GraduationCap, Headphones, Lightbulb, LockKeyhole, Menu, MessageSquare,
-  Pause, Play, RotateCcw, Search, Settings2, Sparkles, Star, Target, Trophy,
+  Pause, Play, RotateCcw, Search, Settings2, ShieldCheck, Sparkles, Star, Target, Trophy,
   Volume2, X, Zap
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -12,7 +12,7 @@ import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import { useAtlasState, updateAtlasState, type AtlasCourse } from "./atlas-store";
+import { makeAssessment, useAtlasState, updateAtlasState, type AtlasAssessment, type AtlasCourse, type AtlasModule } from "./atlas-store";
 import { CertificateDesign } from "./CertificateDesign";
 
 gsap.registerPlugin(ScrollTrigger,useGSAP);
@@ -72,20 +72,24 @@ const curricula:Record<string,{description:string;skill:string;modules:typeof co
   ]}
 };
 
-function getCurriculum(course:Pick<AtlasCourse,"id"|"title"|"category"|"description">) {
-  const catalogueCourse=course as AtlasCourse;
-  if(catalogueCourse.curriculum?.length) {
+type LearnerModule=AtlasModule&{duration:string};
+function getCurriculum(course:AtlasCourse):{description:string;skill:string;modules:LearnerModule[]} {
+  if(course.curriculum?.length) {
     return {
-      description:catalogueCourse.description,
-      skill:`Applied ${catalogueCourse.pathTitle.toLowerCase()} capability`,
-      modules:catalogueCourse.curriculum.map(module=>({
-        title:module.title,
-        lessons:module.lessons.map(lesson=>lesson.title),
+      description:course.fullDescription||course.description,
+      skill:`Applied ${course.pathTitle.toLowerCase()} capability`,
+      modules:course.curriculum.map(module=>({
+        ...module,
         duration:`${Math.max(24,module.lessons.length*11)} min`,
       })),
     };
   }
-  if(curricula[course.id]) return curricula[course.id];
+  const legacy=curricula[course.id];
+  if(legacy) return {...legacy,modules:legacy.modules.map((module,mi)=>({
+    code:`${course.code}-M${mi+1}`,title:module.title,duration:module.duration,required:true,unlockRule:mi?"Previous module":"Always available",
+    lessons:module.lessons.map((title,li)=>({code:`${course.code}-${mi+1}-${li+1}`,title,type:li===0?"Video":"Activity",duration:li===0?"08:42":"12 min",required:true,completionRule:li===0?"Watch 80% of the video":"Mark complete manually"})),
+    quiz:makeAssessment("Module quiz",module.title,`${course.code}-M${mi+1}`),
+  }))};
   const subject=course.title;
   const category=course.category;
   return {
@@ -95,9 +99,7 @@ function getCurriculum(course:Pick<AtlasCourse,"id"|"title"|"category"|"descript
       {title:`Orientation: ${subject}`,lessons:[`Why ${subject.toLowerCase()} matters`,`The Nigerian workplace context`,`Set your practical learning goal`],duration:"34 min"},
       {title:`Core principles of ${category}`,lessons:["Recognise the essential concepts","Distinguish good practice from common errors","Knowledge check: choose the sound approach"],duration:"46 min"},
       {title:"Practise with a realistic scenario",lessons:["Read the workplace brief","Make and defend your decision","Compare your approach with expert guidance"],duration:"58 min"},
-      {title:"Tools, templates and application",lessons:["Use the field checklist","Build your personal action plan","Apply the method in your role"],duration:"43 min"},
-      {title:"Demonstrate your capability",lessons:["Scenario-based assessment","Review your feedback","Commit to the next action"],duration:"39 min"},
-    ]
+    ].map((module,mi)=>({code:`${course.code}-M${mi+1}`,title:module.title,duration:module.duration,required:true,unlockRule:mi?"Previous module" as const:"Always available" as const,lessons:module.lessons.map((title,li)=>({code:`${course.code}-${mi+1}-${li+1}`,title,type:li===0?"Video" as const:"Activity" as const,duration:li===0?"08:42":"12 min",required:true,completionRule:li===0?"Watch 80% of the video":"Mark complete manually"})),quiz:makeAssessment("Module quiz",module.title,`${course.code}-M${mi+1}`)}))
   };
 }
 
@@ -251,14 +253,14 @@ export function CourseExperience({courseId}:{courseId:string}) {
     <nav className="course-nav"><AtlasMark light/><div><a href="/learn">Home</a><span>/</span><a>My learning</a><span>/</span><b>{course.title}</b></div><button><CircleHelp/> Help</button></nav>
     <section className="course-hero" style={{"--course":course.color,"--accent":course.accent} as React.CSSProperties}>
       <div className="course-hero-copy"><a href="/learn"><ArrowLeft/> Back to my learning</a><span className="course-label">{course.status} · {course.due||"Open enrolment"}</span><h1>{course.title}</h1><p>{content.description}</p>
-        <div className="course-facts"><span><Clock3/><b>{course.duration}</b><small>estimated time</small></span><span><BookOpen/><b>{content.modules.length} modules</b><small>{lessonCount} lessons</small></span><span><Award/><b>Certificate</b><small>on completion</small></span></div>
+        <div className="course-facts"><span><Clock3/><b>{course.duration}</b><small>estimated time</small></span><span><BookOpen/><b>{content.modules.length} modules</b><small>{lessonCount} lessons</small></span><span>{course.certificatePolicy?.enabled!==false?<Award/>:<LockKeyhole/>}<b>{course.certificatePolicy?.enabled!==false?"Certificate":"Learning record"}</b><small>{course.certificatePolicy?.enabled!==false?"after all requirements":"on completion"}</small></span></div>
         <a className="journey-primary" href={`/learn/course/${course.id}/lesson/1`}><Play/> {course.progress?"Continue course":"Start course"} <ArrowRight/></a>
       </div>
       <div className="course-hero-art"><span className="giant-art">{course.art}</span><div className="course-ring"><b>{course.progress}%</b><small>complete</small></div><article><Sparkles/><span><small>Skill you’ll build</small><b>{content.skill}</b></span></article></div>
     </section>
     <section className="course-detail">
-      <aside><div className="instructor"><span>{instructorInitials}</span><div><small>Your instructor</small><b>{course.instructor}</b><em>{course.category} specialist</em></div></div><div className="requirements"><h3>To complete this course</h3><p><Check/> Finish all {lessonCount} required lessons</p><p><Check/> Complete {content.modules.length} module checks</p><p><Check/> Score at least 80% in the final assessment</p></div></aside>
-      <div className="curriculum"><span className="journey-kicker">Your learning journey</span><h2>{content.modules.length} modules. One practical transformation.</h2>{content.modules.map((m,i)=>{const offset=content.modules.slice(0,i).reduce((n,x)=>n+x.lessons.length,0);return <article className={open===i?"open":""} key={m.title}><button onClick={()=>setOpen(open===i?-1:i)}><span>{i+1}</span><div><small>Module {i+1} · {m.duration}</small><b>{m.title}</b></div><ChevronDown/></button>{open===i&&<div className="lesson-list">{m.lessons.map((l,j)=><a key={l} href={`/learn/course/${course.id}/lesson/${offset+j+1}`}><span>{i===0&&j<2?<CheckCircle2/>:<Play/>}</span><div><b>{l}</b><small>{j===0?"Video · 8 min":j===1?"Article · 12 min":"Interactive activity · 15 min"}</small></div><ArrowRight/></a>)}</div>}</article>})}</div>
+      <aside><div className="instructor"><span>{instructorInitials}</span><div><small>Your instructor</small><b>{course.instructor}</b><em>{course.category} specialist</em></div></div><div className="requirements"><h3>To complete this course</h3><p><Check/> Finish all {lessonCount} required lessons</p>{course.completionPolicy?.requireKnowledgeChecks!==false&&<p><Check/> Pass {content.modules.reduce((n,m)=>n+m.lessons.filter(l=>l.knowledgeCheck).length,0)} lesson knowledge checks</p>}{course.completionPolicy?.requireModuleQuizzes!==false&&<p><Check/> Pass {content.modules.filter(m=>m.quiz).length} module quizzes</p>}{course.completionPolicy?.requireFinalAssessment!==false&&<p><Check/> Score at least {course.finalAssessment?.passMark??80}% in the final assessment</p>}{course.certificatePolicy?.enabled!==false&&<div className="course-certificate-lock"><Award/><span><b>Certificate locked</b><small>Unlocks automatically when every required item above is complete.</small></span></div>}</div></aside>
+      <div className="curriculum"><span className="journey-kicker">Your learning journey</span><h2>{content.modules.length} modules. One practical transformation.</h2>{content.modules.map((m,i)=>{const offset=content.modules.slice(0,i).reduce((n,x)=>n+x.lessons.length,0);return <article className={open===i?"open":""} key={m.code}><button onClick={()=>setOpen(open===i?-1:i)}><span>{i+1}</span><div><small>Module {i+1} · {m.duration}</small><b>{m.title}</b></div><ChevronDown/></button>{open===i&&<div className="lesson-list">{m.lessons.map((l,j)=><a key={l.code} href={`/learn/course/${course.id}/lesson/${offset+j+1}`}><span>{i===0&&j<2?<CheckCircle2/>:<Play/>}</span><div><b>{l.title}</b><small>{l.type||"Activity"} · {l.duration||"12 min"}{l.knowledgeCheck?" · Knowledge check":""}</small></div><ArrowRight/></a>)}{m.quiz&&<a className="module-quiz-link" href={`/learn/course/${course.id}/module/${i+1}/quiz`}><span><ShieldCheck/></span><div><b>{m.quiz.title}</b><small>{m.quiz.questionsShown} questions · {m.quiz.passMark}% pass mark</small></div><ArrowRight/></a>}</div>}</article>})}</div>
     </section>
   </main>;
 }
@@ -268,7 +270,7 @@ export function LessonExperience({courseId,initialLesson}:{courseId:string;initi
   const atlas=useAtlasState();
   const course=atlas.courses.find(c=>c.id===courseId)||atlas.courses[0];
   const modules=getCurriculum(course).modules;
-  const allLessons=modules.flatMap((m,mi)=>m.lessons.map((title)=>({title,module:m.title,moduleIndex:mi}))).map((x,i)=>({...x,number:i+1}));
+  const allLessons=modules.flatMap((m,mi)=>m.lessons.map((lesson)=>({...lesson,module:m.title,moduleIndex:mi}))).map((x,i)=>({...x,number:i+1}));
   const [current,setCurrent]=useState(Math.min(initialLesson,allLessons.length));
   const [playing,setPlaying]=useState(false);
   const [progress,setProgress]=useState(42);
@@ -276,7 +278,11 @@ export function LessonExperience({courseId,initialLesson}:{courseId:string;initi
   const [note,setNote]=useState("");
   const [saved,setSaved]=useState(false);
   const [completed,setCompleted]=useState<number[]>(()=>typeof window==="undefined"?[]:JSON.parse(localStorage.getItem(`atlas-complete-${courseId}`)||"[]"));
+  const [checkAnswers,setCheckAnswers]=useState<Record<number,number>>({});
+  const [checkResult,setCheckResult]=useState<number|null>(null);
   const lesson=allLessons[current-1];
+  const lessonCheck=lesson.knowledgeCheck;
+  const checkPassed=!lessonCheck||(typeof window!=="undefined"&&localStorage.getItem(`atlas-check-${courseId}-${lesson.code}`)==="passed")||(checkResult??0)>=lessonCheck.passMark;
   useEffect(()=>{if(!playing)return;const id=window.setInterval(()=>setProgress(p=>p>=100?100:p+1),160);return()=>clearInterval(id)},[playing]);
   useGSAP(()=>{
     const mm=gsap.matchMedia();
@@ -289,12 +295,40 @@ export function LessonExperience({courseId,initialLesson}:{courseId:string;initi
     requestAnimationFrame(()=>ScrollTrigger.refresh());
     return()=>mm.revert();
   },{scope:root,dependencies:[current,panel],revertOnUpdate:true});
-  const complete=()=>{const next=[...new Set([...completed,current])];const courseProgress=Math.round(next.length/allLessons.length*100);setCompleted(next);localStorage.setItem(`atlas-complete-${courseId}`,JSON.stringify(next));localStorage.setItem(`atlas-progress-${courseId}`,String(courseProgress));updateAtlasState(state=>({...state,courses:state.courses.map(item=>item.id===courseId?{...item,progress:courseProgress}:item),points:state.points+(completed.includes(current)?0:10)}));if(current<allLessons.length){setCurrent(current+1);setProgress(0)}else{window.location.href=`/learn/course/${courseId}/assessment`}};
+  const submitCheck=()=>{if(!lessonCheck)return;const questions=lessonCheck.questions.slice(0,lessonCheck.questionsShown);const score=Math.round(questions.filter((q,i)=>checkAnswers[i]===q.answer).length/questions.length*100);setCheckResult(score);if(score>=lessonCheck.passMark)localStorage.setItem(`atlas-check-${courseId}-${lesson.code}`,"passed")};
+  const complete=()=>{
+    if(!checkPassed)return;
+    const next=[...new Set([...completed,current])];
+    const courseProgress=Math.round(next.length/allLessons.length*100);
+    setCompleted(next);
+    localStorage.setItem(`atlas-complete-${courseId}`,JSON.stringify(next));
+    localStorage.setItem(`atlas-progress-${courseId}`,String(courseProgress));
+    updateAtlasState(state=>({
+      ...state,
+      courses:state.courses.map(item=>item.id===courseId?{...item,progress:courseProgress}:item),
+      points:state.points+(completed.includes(current)?0:10),
+    }));
+    const activeModule=modules[lesson.moduleIndex];
+    const moduleLessonNumbers=allLessons.filter(item=>item.moduleIndex===lesson.moduleIndex).map(item=>item.number);
+    const lastInModule=Math.max(...moduleLessonNumbers)===current;
+    if(lastInModule&&activeModule.quiz){
+      window.location.assign(`/learn/course/${courseId}/module/${lesson.moduleIndex+1}/quiz`);
+      return;
+    }
+    if(current<allLessons.length){
+      setCurrent(current+1);
+      setProgress(0);
+      setCheckAnswers({});
+      setCheckResult(null);
+    }else{
+      window.location.assign(`/learn/course/${courseId}/assessment`);
+    }
+  };
   return <main ref={root} className="lesson-page">
     <header><a href={`/learn/course/${courseId}`}><X/></a><div><small>{course.title}</small><b>{lesson.module}</b></div><span>{completed.length} of {allLessons.length} lessons</span><button><CircleHelp/> Help</button></header>
     <div className="lesson-progress"><span style={{width:`${(completed.length/allLessons.length)*100}%`}}/></div>
     <div className="lesson-layout">
-      <aside className="lesson-curriculum"><div><b>Course content</b><button><Search/></button></div>{modules.map((m,mi)=>{const offset=modules.slice(0,mi).reduce((n,x)=>n+x.lessons.length,0);return <section key={m.title}><small>MODULE {mi+1}</small><h3>{m.title}</h3>{m.lessons.map((l,li)=>{const n=offset+li+1;return <button key={l} className={current===n?"active":""} onClick={()=>{setCurrent(n);setProgress(completed.includes(n)?100:0)}}><span>{completed.includes(n)?<Check/>:n}</span><div><b>{l}</b><small>{li===0?"Video":"Activity"} · {8+li*4} min</small></div></button>})}</section>})}</aside>
+      <aside className="lesson-curriculum"><div><b>Course content</b><button><Search/></button></div>{modules.map((m,mi)=>{const offset=modules.slice(0,mi).reduce((n,x)=>n+x.lessons.length,0);return <section key={m.code}><small>MODULE {mi+1}</small><h3>{m.title}</h3>{m.lessons.map((l,li)=>{const n=offset+li+1;return <button key={l.code} className={current===n?"active":""} onClick={()=>{setCurrent(n);setProgress(completed.includes(n)?100:0);setCheckAnswers({});setCheckResult(null)}}><span>{completed.includes(n)?<Check/>:n}</span><div><b>{l.title}</b><small>{l.type||"Activity"} · {l.duration||`${8+li*4} min`}{l.knowledgeCheck?" · Check":""}</small></div></button>})}{m.quiz&&<a href={`/learn/course/${courseId}/module/${mi+1}/quiz`}><span><ShieldCheck/></span><div><b>Module quiz</b><small>{m.quiz.questionsShown} questions</small></div></a>}</section>})}</aside>
       <section className="lesson-main">
         <div className="video-stage">
           <div className="video-visual" style={{background:`linear-gradient(135deg, ${course.accent}, #18162c)`}}><span className="video-number">{course.code.split(".")[0].replace(/\D/g,"").padStart(2,"0")||"01"}</span><div className="decision-orbit"><i>Context</i><i>Practice</i><i>Evidence</i><strong>{course.art}</strong></div><h2>{lesson.title.split(" ").slice(0,3).join(" ")}<br/><em>{lesson.title.split(" ").slice(3).join(" ")||course.category}.</em></h2></div>
@@ -307,10 +341,33 @@ export function LessonExperience({courseId,initialLesson}:{courseId:string;initi
           {panel==="notes"&&<div className="notes-panel"><textarea value={note} onChange={e=>setNote(e.target.value)} placeholder="Capture an insight from this lesson…"/><button onClick={()=>localStorage.setItem(`atlas-note-${current}`,note)}>Save note</button></div>}
           {panel==="resources"&&<div className="resource-list"><button><FileText/><span><b>{course.category} field checklist</b><small>PDF · 1.2 MB</small></span><ArrowRight/></button><button><FileText/><span><b>{course.title} scenario workbook</b><small>Workbook · 840 KB</small></span><ArrowRight/></button></div>}
         </div>
+        {lessonCheck&&<section className={`inline-knowledge-check ${checkResult!==null?(checkPassed?"passed":"retry"):""}`}><header><span><Lightbulb/></span><div><small>END-OF-LESSON CHECK</small><h2>{lessonCheck.title}</h2><p>{lessonCheck.instructions}</p></div>{checkResult!==null&&<strong>{checkResult}%</strong>}</header>{lessonCheck.questions.slice(0,lessonCheck.questionsShown).map((question,qi)=><article key={question.id}><h3>{qi+1}. {question.prompt}</h3><div>{question.options.map((option,oi)=><button className={checkAnswers[qi]===oi?"selected":""} onClick={()=>setCheckAnswers({...checkAnswers,[qi]:oi})} key={option}><span>{String.fromCharCode(65+oi)}</span>{option}{checkAnswers[qi]===oi&&<Check/>}</button>)}</div></article>)}<footer><p>{checkResult===null?`${lessonCheck.passMark}% required to continue.`:checkPassed?"Knowledge check passed. You can complete the lesson.":"Review the feedback and try again."}</p><button onClick={submitCheck} disabled={Object.keys(checkAnswers).length<Math.min(lessonCheck.questionsShown,lessonCheck.questions.length)}>{checkResult===null?"Submit answers":"Try again"} <ArrowRight/></button></footer></section>}
       </section>
     </div>
-    <footer className="lesson-footer"><button disabled={current===1} onClick={()=>setCurrent(current-1)}><ChevronLeft/> Previous lesson</button><div><span>{completed.includes(current)?"Lesson complete":"Complete when video reaches 80%"}</span><button className="journey-primary" disabled={progress<80&&!completed.includes(current)} onClick={complete}>{completed.includes(current)?"Continue":"Mark complete"} <ArrowRight/></button></div></footer>
+    <footer className="lesson-footer"><button disabled={current===1} onClick={()=>setCurrent(current-1)}><ChevronLeft/> Previous lesson</button><div><span>{!checkPassed?"Pass the knowledge check to continue":completed.includes(current)?"Lesson complete":lesson.type==="Video"?`Complete when video reaches ${course.completionPolicy?.videoThreshold??80}%`:"Complete the lesson activity"}</span><button className="journey-primary" disabled={(!checkPassed)||(lesson.type==="Video"&&progress<(course.completionPolicy?.videoThreshold??80)&&!completed.includes(current))} onClick={complete}>{completed.includes(current)?"Continue":"Mark complete"} <ArrowRight/></button></div></footer>
   </main>;
+}
+
+function ScoredCheck({assessment,onFinish}:{assessment:AtlasAssessment;onFinish:(score:number)=>void}) {
+  const questions=assessment.questions.slice(0,assessment.questionsShown);
+  const [index,setIndex]=useState(0);
+  const [answers,setAnswers]=useState<Record<number,number>>({});
+  const current=questions[index];
+  const footerButton:React.CSSProperties={display:"flex",alignItems:"center",gap:8,padding:"12px 17px",border:"1px solid #ded9e9",borderRadius:999,background:"#fff",fontWeight:650};
+  return <section className="scored-check" style={{width:"min(1120px,92vw)",margin:"20px auto 80px",borderRadius:30,overflow:"hidden",background:"#f8f7fc"}}><header style={{padding:"38px 44px",background:"#dcd5ff"}}><span style={{fontSize:12,fontWeight:750,letterSpacing:".12em",textTransform:"uppercase",color:"#5b43d6"}}>{assessment.kind}</span><h1 style={{margin:"10px 0",fontSize:43,fontWeight:500}}>{assessment.title}</h1><p style={{color:"#696574"}}>{assessment.instructions}</p><div style={{display:"flex",gap:10}}><b style={{padding:"8px 12px",borderRadius:999,background:"rgba(255,255,255,.65)",fontSize:12}}>{questions.length} questions</b><b style={{padding:"8px 12px",borderRadius:999,background:"rgba(255,255,255,.65)",fontSize:12}}>{assessment.passMark}% pass mark</b><b style={{padding:"8px 12px",borderRadius:999,background:"rgba(255,255,255,.65)",fontSize:12}}>{assessment.timeLimit} minutes</b></div></header><div className="scored-check-body" style={{display:"grid",gridTemplateColumns:"130px 1fr",minHeight:520}}><aside style={{display:"flex",alignContent:"flex-start",flexWrap:"wrap",gap:9,padding:30,borderRight:"1px solid #e3dfec"}}>{questions.map((question,i)=><button className={`${i===index?"active":""} ${answers[i]!==undefined?"answered":""}`} style={{width:34,height:34,border:"1px solid #dcd7e7",borderRadius:10,background:i===index?"#654ce6":answers[i]!==undefined?"#d9f4e5":"#fff",color:i===index?"#fff":"#111"}} key={question.id} onClick={()=>setIndex(i)}>{i+1}</button>)}</aside><article style={{padding:42}}><small style={{color:"#654ce6",fontWeight:700}}>Question {index+1} of {questions.length}</small><h2 style={{maxWidth:760,margin:"14px 0 24px",fontSize:31,fontWeight:500}}>{current.prompt}</h2><div style={{display:"grid",gap:11}}>{current.options.map((option,i)=><button className={answers[index]===i?"selected":""} style={{display:"flex",alignItems:"center",gap:13,padding:16,border:`1px solid ${answers[index]===i?"#654ce6":"#ded9e9"}`,borderRadius:14,background:answers[index]===i?"#f0ecff":"#fff",textAlign:"left"}} key={option} onClick={()=>setAnswers({...answers,[index]:i})}><span style={{display:"grid",placeItems:"center",width:30,height:30,borderRadius:9,background:"#eeeaff",color:"#5b43d6",fontWeight:700}}>{String.fromCharCode(65+i)}</span>{option}{answers[index]===i&&<Check/>}</button>)}</div><footer style={{display:"flex",justifyContent:"space-between",marginTop:34}}><button style={footerButton} disabled={index===0} onClick={()=>setIndex(index-1)}><ChevronLeft/> Previous</button>{index<questions.length-1?<button style={{...footerButton,borderColor:"#654ce6",background:"#654ce6",color:"#fff"}} onClick={()=>setIndex(index+1)}>Next <ArrowRight/></button>:<button style={{...footerButton,borderColor:"#654ce6",background:"#654ce6",color:"#fff"}} disabled={Object.keys(answers).length<questions.length} onClick={()=>onFinish(Math.round(questions.filter((question,i)=>answers[i]===question.answer).length/questions.length*100))}>Submit quiz <Check/></button>}</footer></article></div></section>;
+}
+
+export function ModuleQuizExperience({courseId,moduleNumber}:{courseId:string;moduleNumber:number}) {
+  const atlas=useAtlasState();
+  const course=atlas.courses.find(c=>c.id===courseId)||atlas.courses[0];
+  const modules=getCurriculum(course).modules;
+  const activeModule=modules[Math.max(0,moduleNumber-1)]||modules[0];
+  const assessment=activeModule.quiz??makeAssessment("Module quiz",activeModule.title,activeModule.code);
+  const [result,setResult]=useState<number|null>(null);
+  const pass=result!==null&&result>=assessment.passMark;
+  const finish=(score:number)=>{setResult(score);localStorage.setItem(`atlas-module-quiz-${courseId}-${moduleNumber}`,String(score))};
+  if(result!==null)return <main className={`module-quiz-result ${pass?"pass":"fail"}`}><AtlasMark/><section><span>{pass?<Award/>:<RotateCcw/>}</span><small>{pass?"MODULE COMPLETE":"TRY ONCE MORE"}</small><h1>{pass?"You’re ready for what comes next.":"A little more practice will get you there."}</h1><p>You scored <b>{result}%</b>. The pass mark for {activeModule.title} is {assessment.passMark}%.</p>{pass?<a className="journey-primary" href={moduleNumber<modules.length?`/learn/course/${courseId}/lesson/${modules.slice(0,moduleNumber).reduce((n,m)=>n+m.lessons.length,0)+1}`:`/learn/course/${courseId}/assessment`}>{moduleNumber<modules.length?"Continue to next module":"Continue to final assessment"} <ArrowRight/></a>:<button className="journey-primary" onClick={()=>setResult(null)}>Try again <RotateCcw/></button>}<a href={`/learn/course/${courseId}`}>Return to course overview</a></section></main>;
+  return <main className="module-quiz-page" style={{minHeight:"100vh",background:"#282247",paddingBottom:1}}><nav style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"24px 4vw"}}><AtlasMark light/><a style={{color:"#fff"}} href={`/learn/course/${courseId}`}><X/></a></nav><ScoredCheck assessment={assessment} onFinish={finish}/></main>;
 }
 
 const assessmentQuestions = [
@@ -322,6 +379,7 @@ const assessmentQuestions = [
 ];
 
 function assessmentFor(course:AtlasCourse) {
+  if(course.finalAssessment?.questions.length) return course.finalAssessment.questions.slice(0,course.finalAssessment.questionsShown).map(question=>({q:question.prompt,options:question.options,answer:question.answer}));
   if(course.id==="ai-work") return assessmentQuestions;
   const subject=course.title;
   return [
@@ -338,6 +396,8 @@ export function AssessmentExperience({courseId}:{courseId:string}) {
   const atlas=useAtlasState();
   const course=atlas.courses.find(c=>c.id===courseId)||atlas.courses[0];
   const questions=assessmentFor(course);
+  const assessment=course.finalAssessment??makeAssessment("Final assessment",course.title,course.code);
+  const passMark=assessment.passMark;
   const [started,setStarted]=useState(false);
   const [index,setIndex]=useState(0);
   const [answers,setAnswers]=useState<Record<number,number>>({});
@@ -351,9 +411,9 @@ export function AssessmentExperience({courseId}:{courseId:string}) {
     });
     return()=>mm.revert();
   },{scope:root,dependencies:[started,index,result],revertOnUpdate:true});
-  const submit=()=>{const score=Math.round(questions.filter((q,i)=>answers[i]===q.answer).length/questions.length*100);setResult(score);localStorage.setItem(`atlas-score-${courseId}`,String(score));if(score>=80){const certificateId=`VN-ATL-2026-${courseId.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,5)}`;localStorage.setItem(`atlas-certificate-${courseId}`,certificateId);localStorage.setItem(`atlas-progress-${courseId}`,"100");updateAtlasState(state=>({...state,courses:state.courses.map(item=>item.id===courseId?{...item,progress:100}:item),points:state.points+350,credentials:state.credentials.some(item=>item.courseId===courseId)?state.credentials:[{id:certificateId,courseId,title:course.title,issued:"30 July 2026",status:"Active"},...state.credentials]}))}};
-  if(result!==null){const certificateId=localStorage.getItem(`atlas-certificate-${courseId}`)||"VN-ATL-2026-08421";return <main ref={root} className={`result-page ${result>=80?"pass":"fail"}`}><AtlasMark/><section><span className="result-icon">{result>=80?<Award/>:<RotateCcw/>}</span><span className="journey-kicker">{result>=80?"Assessment passed":"Not quite yet"}</span><h1>{result>=80?"You proved your capability.":"Review. Return. Rise."}</h1><p>{result>=80?`You have completed every requirement for ${course.title}. Your certificate and learning record are ready.`:"You need 80% to pass. Atlas has highlighted the lessons that will help you prepare for your next attempt."}</p><div className="result-score"><strong>{result}%</strong><span><b>{result>=80?"Passed":"Pass mark: 80%"}</b><small>{questions.filter((q,i)=>answers[i]===q.answer).length} of {questions.length} answers correct</small></span></div><div className="result-actions">{result>=80?<><a className="journey-primary" href={`/learn/certificate/${certificateId}`}>View my certificate <ArrowRight/></a><a href="/learn">Return home</a></>:<><button className="journey-primary" onClick={()=>{setResult(null);setIndex(0);setAnswers({})}}>Try again <RotateCcw/></button><a href={`/learn/course/${courseId}`}>Review course</a></>}</div></section></main>;}
-  if(!started)return <main ref={root} className="assessment-intro"><AtlasMark light/><section><div><span className="journey-kicker">Final assessment · {course.code}</span><h1>Show what<br/>you now know.</h1><p>Apply your {course.category.toLowerCase()} judgement to realistic situations from {course.title}.</p><div className="assessment-rules"><span><Clock3/><b>20 minutes</b><small>Timer begins when you start</small></span><span><Target/><b>80% pass mark</b><small>Four correct answers</small></span><span><RotateCcw/><b>2 attempts</b><small>Review between attempts</small></span></div><button className="journey-primary" onClick={()=>setStarted(true)}>Begin assessment <ArrowRight/></button></div><div className="assessment-art"><strong>80</strong><span>%</span><i/><i/><i/></div></section></main>;
+  const submit=()=>{const score=Math.round(questions.filter((q,i)=>answers[i]===q.answer).length/questions.length*100);setResult(score);localStorage.setItem(`atlas-score-${courseId}`,String(score));if(score>=passMark){const certificateId=`VN-ATL-2026-${courseId.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,5)}`;if(course.certificatePolicy?.enabled!==false)localStorage.setItem(`atlas-certificate-${courseId}`,certificateId);localStorage.setItem(`atlas-progress-${courseId}`,"100");updateAtlasState(state=>({...state,courses:state.courses.map(item=>item.id===courseId?{...item,progress:100}:item),points:state.points+350,credentials:course.certificatePolicy?.enabled===false||state.credentials.some(item=>item.courseId===courseId)?state.credentials:[{id:certificateId,courseId,title:course.title,issued:"31 July 2026",status:"Active"},...state.credentials]}))}};
+  if(result!==null){const certificateId=localStorage.getItem(`atlas-certificate-${courseId}`)||"VN-ATL-2026-08421";const passed=result>=passMark;return <main ref={root} className={`result-page ${passed?"pass":"fail"}`}><AtlasMark/><section><span className="result-icon">{passed?<Award/>:<RotateCcw/>}</span><span className="journey-kicker">{passed?"Assessment passed":"Not quite yet"}</span><h1>{passed?"You proved your capability.":"Review. Return. Rise."}</h1><p>{passed?`You have completed every requirement for ${course.title}. ${course.certificatePolicy?.enabled!==false?"Your certificate and learning record are ready.":"Your learning record is now complete."}`:`You need ${passMark}% to pass. Atlas has highlighted the lessons that will help you prepare for your next attempt.`}</p><div className="result-score"><strong>{result}%</strong><span><b>{passed?"Passed":`Pass mark: ${passMark}%`}</b><small>{questions.filter((q,i)=>answers[i]===q.answer).length} of {questions.length} answers correct</small></span></div><div className="result-actions">{passed?<>{course.certificatePolicy?.enabled!==false&&<a className="journey-primary" href={`/learn/certificate/${certificateId}`}>View my certificate <ArrowRight/></a>}<a href="/learn">Return home</a></>:<><button className="journey-primary" onClick={()=>{setResult(null);setIndex(0);setAnswers({})}}>Try again <RotateCcw/></button><a href={`/learn/course/${courseId}`}>Review course</a></>}</div></section></main>;}
+  if(!started)return <main ref={root} className="assessment-intro"><AtlasMark light/><section><div><span className="journey-kicker">Final assessment · {course.code}</span><h1>Show what<br/>you now know.</h1><p>Apply your {course.category.toLowerCase()} judgement to realistic situations from {course.title}.</p><div className="assessment-rules"><span><Clock3/><b>{assessment.timeLimit} minutes</b><small>Timer begins when you start</small></span><span><Target/><b>{passMark}% pass mark</b><small>{Math.ceil(questions.length*passMark/100)} correct answers</small></span><span><RotateCcw/><b>{assessment.attempts} attempts</b><small>Review between attempts</small></span></div><button className="journey-primary" onClick={()=>setStarted(true)}>Begin assessment <ArrowRight/></button></div><div className="assessment-art"><strong>{passMark}</strong><span>%</span><i/><i/><i/></div></section></main>;
   const item=questions[index];
   return <main ref={root} className="assessment-page"><header><a href={`/learn/course/${courseId}`}><X/></a><div><small>Final assessment</small><b>{course.title}</b></div><span><Clock3/> 18:42 remaining</span><button onClick={submit}>Submit assessment</button></header><div className="assessment-progress"><span style={{width:`${((index+1)/questions.length)*100}%`}}/></div><div className="assessment-layout"><aside><small>QUESTION NAVIGATOR</small><div>{questions.map((_,i)=><button key={i} className={`${index===i?"active":""} ${answers[i]!==undefined?"answered":""}`} onClick={()=>setIndex(i)}>{i+1}{flagged.includes(i)&&<i/>}</button>)}</div><p><span/> Answered <span/> Flagged</p></aside><section><span className="journey-kicker">Question {index+1} of {questions.length}</span><h1>{item.q}</h1><p>Select the best answer.</p><div className="answer-options">{item.options.map((o,i)=><button key={o} className={answers[index]===i?"selected":""} onClick={()=>setAnswers({...answers,[index]:i})}><span>{String.fromCharCode(65+i)}</span><b>{o}</b>{answers[index]===i&&<Check/>}</button>)}</div><div className="question-actions"><button className={flagged.includes(index)?"flagged":""} onClick={()=>setFlagged(v=>v.includes(index)?v.filter(x=>x!==index):[...v,index])}><Star/> {flagged.includes(index)?"Flagged for review":"Flag for review"}</button><div><button disabled={index===0} onClick={()=>setIndex(index-1)}><ChevronLeft/> Previous</button>{index<questions.length-1?<button className="journey-primary" onClick={()=>setIndex(index+1)}>Next question <ArrowRight/></button>:<button className="journey-primary" onClick={submit}>Submit assessment <Check/></button>}</div></div></section></div></main>;
 }

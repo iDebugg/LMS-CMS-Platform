@@ -4,6 +4,29 @@ import { useEffect, useState } from "react";
 import type { Course } from "./data";
 import { atlasCatalogue, type CatalogueLesson } from "./catalogue.generated";
 
+export type AtlasQuestion = {
+  id: string;
+  prompt: string;
+  options: string[];
+  answer: number;
+  feedback?: string;
+};
+
+export type AtlasAssessment = {
+  id: string;
+  title: string;
+  kind: "Knowledge check" | "Module quiz" | "Final assessment";
+  instructions: string;
+  questions: AtlasQuestion[];
+  questionsShown: number;
+  passMark: number;
+  attempts: number;
+  timeLimit: number;
+  randomise: boolean;
+  required: boolean;
+  feedbackMode: "Immediate" | "After submission";
+};
+
 export type AtlasLesson = CatalogueLesson & {
   type?: "Video" | "Text" | "Document" | "Audio" | "Scenario" | "Activity";
   mediaId?: string;
@@ -11,6 +34,9 @@ export type AtlasLesson = CatalogueLesson & {
   objective?: string;
   completionRule?: string;
   required?: boolean;
+  description?: string;
+  resources?: string[];
+  knowledgeCheck?: AtlasAssessment;
 };
 
 export type AtlasModule = {
@@ -20,6 +46,8 @@ export type AtlasModule = {
   objective?: string;
   required?: boolean;
   lessons: AtlasLesson[];
+  unlockRule?: "Previous module" | "Always available";
+  quiz?: AtlasAssessment;
 };
 
 export type AtlasCourse = Course & {
@@ -47,6 +75,27 @@ export type AtlasCourse = Course & {
   completionRule?: string;
   certificateEnabled?: boolean;
   version?: string;
+  finalAssessment?: AtlasAssessment;
+  completionPolicy?: {
+    requiredLessons: boolean;
+    videoThreshold: number;
+    requireKnowledgeChecks: boolean;
+    requireModuleQuizzes: boolean;
+    requireFinalAssessment: boolean;
+  };
+  certificatePolicy?: {
+    enabled: boolean;
+    template: string;
+    issuer: string;
+    validityMonths: number;
+    signatories: string[];
+    verificationEnabled: boolean;
+    renewalReminder: boolean;
+  };
+  accessPolicy?: {
+    audience: string;
+    availability: "Immediately after publication" | "Scheduled";
+  };
 };
 
 export type AtlasAssignment = {
@@ -101,6 +150,32 @@ const instructors = [
 
 export const cataloguePaths = atlasCatalogue;
 
+function questionSet(subject:string,code:string):AtlasQuestion[] {
+  return [
+    {id:`${code}-q1`,prompt:`What should happen before applying ${subject.toLowerCase()} in a real workplace decision?`,options:["Clarify the outcome, evidence and people affected","Choose the fastest available option","Copy the previous response","Avoid documenting the decision"],answer:0,feedback:"Sound practice begins with context, evidence and accountability."},
+    {id:`${code}-q2`,prompt:"Which response demonstrates the strongest professional judgement?",options:["Act before checking authority","Use evidence, follow the relevant rule and record the rationale","Assume one approach fits every case","Escalate every routine decision"],answer:1,feedback:"Professional judgement combines evidence, rules and a defensible rationale."},
+    {id:`${code}-q3`,prompt:"Important information is missing from a scenario. What should you do?",options:["Invent a reasonable detail","Ignore the gap","Identify the gap and seek reliable evidence","Stop all work indefinitely"],answer:2,feedback:"Uncertainty should be identified and reduced with reliable evidence."},
+  ];
+}
+
+export function makeAssessment(kind:AtlasAssessment["kind"],subject:string,code:string):AtlasAssessment {
+  const questions=questionSet(subject,code);
+  return {
+    id:`${code}-${kind.toLowerCase().replaceAll(" ","-")}`,
+    title:kind==="Final assessment"?`${subject} final assessment`:`${subject} ${kind.toLowerCase()}`,
+    kind,
+    instructions:kind==="Knowledge check"?"Answer the short checkpoint before completing this lesson.":"Apply what you learned to realistic workplace situations.",
+    questions,
+    questionsShown:questions.length,
+    passMark:80,
+    attempts:2,
+    timeLimit:kind==="Knowledge check"?5:kind==="Module quiz"?10:20,
+    randomise:false,
+    required:true,
+    feedbackMode:"After submission",
+  };
+}
+
 const catalogueCourses: AtlasCourse[] = atlasCatalogue.flatMap((path, pathIndex) =>
   path.courses.map((course, courseIndex) => {
     const index = pathIndex * 7 + courseIndex;
@@ -139,9 +214,30 @@ const catalogueCourses: AtlasCourse[] = atlasCatalogue.flatMap((path, pathIndex)
       pathCode: path.code,
       pathTitle: path.title,
       audience: path.audience,
-      curriculum: [{ code: course.code, title: course.title, lessons: course.lessons }],
+      curriculum: [{
+        code: course.code,
+        title: course.title,
+        description:`Apply ${course.title.toLowerCase()} through a guided sequence of practice.`,
+        objective:`Use ${course.title.toLowerCase()} confidently in a relevant workplace situation.`,
+        required:true,
+        unlockRule:"Previous module",
+        lessons:course.lessons.map((lesson,lessonIndex)=>({
+          ...lesson,
+          type:lessonIndex===0?"Video":lessonIndex===1?"Text":"Activity",
+          duration:lessonIndex===0?"08:42":lessonIndex===1?"12 min":"15 min",
+          required:true,
+          completionRule:lessonIndex===0?"Watch 80% of the video":lessonIndex===1?"Open required resource":"Pass lesson activity",
+          objective:`Apply the principle covered in ${lesson.title.toLowerCase()}.`,
+          knowledgeCheck:lessonIndex===0?makeAssessment("Knowledge check",lesson.title,lesson.code):undefined,
+        })),
+        quiz:makeAssessment("Module quiz",course.title,course.code),
+      }],
       lifecycle: index % 19 === 0 ? "Draft" : "Published",
       updatedAt: `2026-07-${String(6 + (index % 24)).padStart(2, "0")}`,
+      finalAssessment:makeAssessment("Final assessment",course.title,course.code),
+      completionPolicy:{requiredLessons:true,videoThreshold:80,requireKnowledgeChecks:true,requireModuleQuizzes:true,requireFinalAssessment:true},
+      certificatePolicy:{enabled:true,template:"Federal Service completion certificate",issuer:"Federal Service Learning Directorate",validityMonths:12,signatories:["Course instructor","Learning director"],verificationEnabled:true,renewalReminder:true},
+      accessPolicy:{audience:"Entire organisation",availability:"Immediately after publication"},
     };
   }),
 );
@@ -178,7 +274,33 @@ export function readAtlasState(): AtlasState {
   try {
     const stored = JSON.parse(raw) as AtlasState;
     const storedById = new Map((stored.courses ?? []).map(course => [course.id, course]));
-    const canonicalCourses = seed.courses.map(course => ({ ...course, ...storedById.get(course.id), curriculum: course.curriculum }));
+    const canonicalCourses = seed.courses.map(course => {
+      const saved=storedById.get(course.id);
+      if(!saved)return course;
+      const migratedCurriculum=(saved.curriculum?.length?saved.curriculum:course.curriculum).map((savedModule,moduleIndex)=>{
+        const canonicalModule=course.curriculum[moduleIndex];
+        if(!canonicalModule)return savedModule;
+        return {
+          ...canonicalModule,
+          ...savedModule,
+          lessons:savedModule.lessons.map((savedLesson,lessonIndex)=>({
+            ...canonicalModule.lessons[lessonIndex],
+            ...savedLesson,
+            knowledgeCheck:savedLesson.knowledgeCheck??canonicalModule.lessons[lessonIndex]?.knowledgeCheck,
+          })),
+          quiz:savedModule.quiz??canonicalModule.quiz,
+        };
+      });
+      return {
+        ...course,
+        ...saved,
+        curriculum:migratedCurriculum,
+        finalAssessment:saved.finalAssessment??course.finalAssessment,
+        completionPolicy:saved.completionPolicy ?? course.completionPolicy,
+        certificatePolicy:saved.certificatePolicy ?? course.certificatePolicy,
+        accessPolicy:saved.accessPolicy ?? course.accessPolicy,
+      };
+    });
     const authoredCourses = (stored.courses ?? []).filter(course => !seed.courses.some(canonical => canonical.id === course.id));
     const merged = { ...seed, ...stored, courses: [...canonicalCourses, ...authoredCourses] };
     const courses = merged.courses.map(course => {
