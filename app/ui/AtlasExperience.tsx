@@ -2,6 +2,7 @@
 
 import {
   ArrowRight,
+  ArrowUp,
   Award,
   BadgeCheck,
   BarChart3,
@@ -92,6 +93,78 @@ function goTo(view: View) {
   window.location.href = view === "landing" ? "/" : view === "lms" ? "/learn" : "/admin";
 }
 
+/** Floating "back to top" control. Works with window scrolling and with an
+ *  inner scroll container (the app shells scroll inside `.app-main`). */
+function BackToTop({ containerSelector }: { containerSelector?: string }) {
+  const [visible, setVisible] = useState(false);
+  const [hover, setHover] = useState(false);
+
+  useEffect(() => {
+    const findContainer = () =>
+      containerSelector ? document.querySelector<HTMLElement>(containerSelector) : null;
+
+    const read = () => {
+      const container = findContainer();
+      const offset = Math.max(window.scrollY || 0, container ? container.scrollTop : 0);
+      setVisible(offset > 360);
+    };
+
+    read();
+    const container = findContainer();
+    window.addEventListener("scroll", read, { passive: true });
+    container?.addEventListener("scroll", read, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", read);
+      container?.removeEventListener("scroll", read);
+    };
+  }, [containerSelector]);
+
+  const toTop = () => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const behavior: ScrollBehavior = reduce ? "auto" : "smooth";
+    const container = containerSelector
+      ? document.querySelector<HTMLElement>(containerSelector)
+      : null;
+    container?.scrollTo({ top: 0, behavior });
+    window.scrollTo({ top: 0, behavior });
+  };
+
+  return (
+    <button
+      type="button"
+      aria-label="Back to top"
+      title="Back to top"
+      onClick={toTop}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        position: "fixed",
+        right: "clamp(16px, 3vw, 32px)",
+        bottom: "clamp(16px, 3vw, 32px)",
+        width: 48,
+        height: 48,
+        display: "grid",
+        placeItems: "center",
+        borderRadius: 999,
+        border: "none",
+        cursor: "pointer",
+        color: "#fff",
+        background: "#6552df",
+        boxShadow: hover
+          ? "0 16px 34px rgba(101, 82, 223, .42)"
+          : "0 10px 26px rgba(20, 15, 60, .22)",
+        transform: `translateY(${visible ? (hover ? -3 : 0) : 14}px)`,
+        opacity: visible ? 1 : 0,
+        pointerEvents: visible ? "auto" : "none",
+        transition: "opacity .3s ease, transform .3s ease, box-shadow .3s ease",
+        zIndex: 1200,
+      }}
+    >
+      <ArrowUp size={20} />
+    </button>
+  );
+}
+
 export function AtlasExperience({ initialView }: Props) {
   if (initialView === "landing") return <Landing />;
   if (initialView === "lms") return <LMS />;
@@ -101,6 +174,33 @@ export function AtlasExperience({ initialView }: Props) {
 function Landing() {
   const root = useRef<HTMLDivElement>(null);
   const [menu, setMenu] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  const [navHeight, setNavHeight] = useState(0);
+  const [navScrolled, setNavScrolled] = useState(false);
+
+  // Fix the navbar to the viewport, and keep a spacer of the exact same height
+  // in the flow so the rest of the layout stays untouched.
+  useEffect(() => {
+    const node = navRef.current;
+    if (!node) return;
+    const measure = () => {
+      setNavHeight(node.offsetHeight);
+      ScrollTrigger.refresh();
+    };
+    const onScroll = () => setNavScrolled((window.scrollY || 0) > 12);
+    measure();
+    onScroll();
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const observer =
+      typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
+    observer?.observe(node);
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", onScroll);
+      observer?.disconnect();
+    };
+  }, []);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
@@ -154,7 +254,22 @@ function Landing() {
 
   return (
     <div ref={root} className="landing">
-      <header className="public-nav">
+      <header
+        ref={navRef}
+        className="public-nav"
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          width: "100%",
+          zIndex: 1100,
+          backdropFilter: navScrolled ? "saturate(180%) blur(14px)" : undefined,
+          WebkitBackdropFilter: navScrolled ? "saturate(180%) blur(14px)" : undefined,
+          boxShadow: navScrolled ? "0 10px 30px rgba(20, 15, 60, .08)" : undefined,
+          transition: "box-shadow .3s ease, backdrop-filter .3s ease",
+        }}
+      >
         <Brand />
         <nav className={menu ? "nav-open" : ""}>
           <a href="#platform">Platform</a>
@@ -170,6 +285,7 @@ function Landing() {
           {menu ? <X /> : <Menu />}
         </button>
       </header>
+      <div aria-hidden="true" style={{ height: navHeight }} />
 
       <main>
         <section className="hero">
@@ -177,7 +293,7 @@ function Landing() {
           <div className="hero-orb orb-two" />
           <div className="hero-copy">
             <span className="eyebrow"><Sparkles size={15} /> Learning, beautifully connected</span>
-            <h1>Build skills that<br /><em>move people forward.</em></h1>
+            <h1 className="">Build skills that<br /><em>move organizations forward.</em></h1>
             <p>One joyful platform to create learning, grow talent and turn every achievement into measurable progress.</p>
             <div className="hero-actions">
               <button className="button button-primary" onClick={() => window.location.href="/auth"}>Begin the experience <ArrowRight size={17} /></button>
@@ -276,6 +392,7 @@ function Landing() {
         </section>
       </main>
       <footer><Brand light /><p>Learning infrastructure for people and organisations that want to move forward.</p><div><a href="#">Privacy</a><a href="#">Accessibility</a><a href="#">Support</a></div><small>© 2026 Von Newman Atlas</small></footer>
+      <BackToTop />
     </div>
   );
 }
@@ -326,7 +443,7 @@ function LMS() {
     <div ref={root} className="app-shell learner-shell">
       <aside className="app-sidebar learner-sidebar">
         <Brand light />
-        <div className="workspace-card"><span className="workspace-logo">F</span><div><small>Workspace</small><b>Federal Service</b></div><ChevronDown size={16} /></div>
+        <div className="workspace-card"><span className="workspace-logo">N</span><div><small>Workspace</small><b>Nugitech</b></div><ChevronDown size={16} /></div>
         <nav>{lmsNav.map(({label,icon:Icon})=><button key={label} className={active===label?"active":""} onClick={()=>setActive(label)}><Icon size={19}/><span>{label}</span>{label==="My learning"&&<em>4</em>}</button>)}</nav>
         <div className="sidebar-spacer" />
         <div className="weekly-card"><div><Zap size={18}/><b>Weekly goal</b></div><div className="weekly-ring"><strong>3</strong><small>of 4 days</small></div><p>One more learning day to keep your rhythm.</p></div>
@@ -342,7 +459,7 @@ function LMS() {
         </header>
         <div className="dashboard-content view-enter">
           <section className="welcome-row">
-            <div><span className="today">Wednesday, 30 July</span><h1>Good morning, Amara <span>👋🏾</span></h1><p>Small steps, real growth. Here’s what’s next.</p></div>
+            <div><span className="today">Wednesday, 30 July</span><h1>Good morning, Tonia <span>👋🏾</span></h1><p>Small steps, real growth. Here’s what’s next.</p></div>
             <div className="level-pill"><span><Sparkles size={18}/></span><div><small>Current level</small><b>Practitioner</b></div><strong>2,840 XP</strong></div>
           </section>
 
@@ -381,6 +498,7 @@ function LMS() {
           </> : <LearnerWorkspace active={active} courses={learnerCourses} globalQuery={globalQuery} />}
         </div>
       </main>
+      <BackToTop containerSelector=".app-main" />
     </div>
   );
 }
@@ -395,8 +513,8 @@ function LearningCard({ course }: { course: Course }) {
 function LearnerWorkspace({active,courses:availableCourses,globalQuery}:{active:string;courses:AtlasCourse[];globalQuery:string}) {
   const atlas=useAtlasState();
   const [query,setQuery]=useState("");
-  const [filter,setFilter]=useState("All");
-  const [pathGroup,setPathGroup]=useState("All");
+  const [filter,setFilter]=useState("In progress");
+  const [pathGroup,setPathGroup]=useState("In progress");
   const [selectedPath,setSelectedPath]=useState("");
   const effectiveQuery=query||globalQuery;
   const visible=availableCourses.filter(c=>(filter==="All"||filter==="In progress"&&c.progress>0&&c.progress<100||filter==="Mandatory"&&c.status==="Mandatory"||filter==="Completed"&&c.progress===100)&&`${c.title} ${c.category} ${c.code}`.toLowerCase().includes(effectiveQuery.toLowerCase()));
@@ -453,6 +571,7 @@ function CMS() {
         {studioOpen?<CourseStudio course={studioCourse} onClose={()=>setStudioOpen(false)} onSave={(course)=>{saveCourse(course);setStudioCourse(course)}} onPublish={(course)=>{publishCourse(course);setPublished(course);setStudioCourse(course);setStudioOpen(false);setActive("Courses")}}/>:active==="Dashboard" ? <CMSDashboard onCreate={()=>{setStudioCourse(null);setStudioOpen(true)}} published={published} onNavigate={setActive}/> : <CMSSection active={active} onCreate={()=>{setStudioCourse(null);setStudioOpen(true)}} onEdit={(course)=>{setStudioCourse(course);setStudioOpen(true)}} published={published} catalogue={atlas.courses}/>}
       </div>
     </main>
+    <BackToTop containerSelector=".app-main" />
   </div>;
 }
 
@@ -555,9 +674,9 @@ function PeopleWorkspace({active,heading,notify}:{active:string;heading:React.Re
     ["Tunde Adebayo","Security Analyst · IT","Active","5 assigned"]
   ];
   if(active==="Organisations") return <section>{heading}<div className="organisation-grid scroll-reveal">{[
-    ["Federal Service Learning Directorate","FSLD-2026","2,480 learners","91% compliance","#dcd5ff"],
-    ["Sterling Coast Bank","SCB-LRN","1,126 learners","87% compliance","#cceffc"],
-    ["Horizon Academy","HZ-ACADEMY","684 learners","79% compliance","#d5f7d9"]
+    ["National Revenue Service (NRS)","NRS-2026","2,480 learners","91% compliance","#dcd5ff"],
+    ["Zimedy Consultants","ZMD-LRN","1,126 learners","87% compliance","#cceffc"],
+    ["Nugitech","HZ-ACADEMY","684 learners","79% compliance","#d5f7d9"]
   ].map((o,i)=><article key={o[0]} style={{"--org-color":o[4]} as React.CSSProperties}><span>{o[0][0]}</span><small>{i===0?"CURRENT WORKSPACE":"CONNECTED ORGANISATION"}</small><h3>{o[0]}</h3><p>{o[1]}</p><div><b>{o[2]}</b><b>{o[3]}</b></div><button onClick={()=>notify(`${o[0]} workspace opened`)}>Manage workspace <ArrowRight/></button></article>)}</div></section>;
   return <section>{heading}<div className="people-toolbar scroll-reveal"><label className="search-box"><Search/><input placeholder="Search users, roles or departments"/></label><button><Upload/> Import CSV</button><button><Filter/> Segments</button></div><div className="people-table scroll-reveal"><div className="people-head"><span>Learner</span><span>Account</span><span>Learning</span><span>Last active</span><span/></div>{people.map((p,i)=><div key={p[0]}><span className="person-cell"><i>{p[0].split(" ").map(x=>x[0]).join("")}</i><span><b>{p[0]}</b><small>{p[1]}</small></span></span><em className={p[2]==="Active"?"active-status":""}>{p[2]}</em><span>{p[3]}</span><span>{i*11+4} min ago</span><button onClick={()=>notify(`${p[0]}'s learning record opened`)}><MoreHorizontal/></button></div>)}</div></section>;
 }
