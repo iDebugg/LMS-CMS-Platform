@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./landing.css";
+import "./platform.css";
+import "./journeys.css";
+import "./platform-refinements.css";
+import "./learning-flows.css";
 import "./course-studio.css";
 
 export const metadata: Metadata = {

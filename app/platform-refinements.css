@@ -1,0 +1,74 @@
+/* Course authoring: restrained hierarchy */
+.course-modal header b { font-weight:600 }
+.course-modal .stepper button { font-weight:500 }
+.course-modal .stepper button.active,.course-modal .stepper button.done { font-weight:650 }
+.course-modal .kicker { font-weight:650 }
+.course-modal .modal-body h2 { font-weight:400 }
+.course-modal .form-grid label { font-weight:550 }
+.course-modal .form-grid input,.course-modal .form-grid textarea,.course-modal .form-grid select { font-weight:400 }
+.course-modal .button { font-weight:600 }
+.course-modal .module-builder b,.course-modal .assessment-card b,.course-modal .toggle-row b { font-weight:550 }
+
+/* Shared application readability: LMS now uses the same comfortable scale as CMS. */
+.learner-shell .app-sidebar nav > div > small { font-size:11px; }
+.learner-shell .app-sidebar nav button,
+.learner-shell .nav-settings { font-size:14px; min-height:45px; font-weight:560; }
+.learner-shell .app-sidebar nav button em { font-size:11px; }
+.learner-shell .workspace-card small { font-size:11px; }
+.learner-shell .workspace-card b,
+.learner-shell .profile-row b { font-size:14px; }
+.learner-shell .profile-row small,
+.learner-shell .weekly-card p { font-size:12px; }
+.learner-shell .weekly-card > div:first-child { font-size:13px; }
+.learner-shell .weekly-ring small { font-size:10px; }
+.learner-shell .search-box input { font-size:15px; }
+.learner-shell .search-box kbd { font-size:11px; }
+.learner-shell .today { font-size:11px; }
+.learner-shell .welcome-row h1 { font-size:clamp(38px,3vw,52px); font-weight:500; }
+.learner-shell .welcome-row h1 span { font-size:30px; }
+.learner-shell .welcome-row p { font-size:16px; }
+.learner-shell .level-pill small { font-size:12px; }
+.learner-shell .level-pill b { font-size:15px; font-weight:600; }
+.learner-shell .level-pill strong { font-size:13px; }
+.learner-shell .continue-copy > p { font-size:15px; }
+.learner-shell .progress-label { font-size:13px; }
+.learner-shell .continue-actions .button { font-size:14px; }
+.learner-shell .continue-actions small { font-size:12px; }
+.learner-shell .stat-grid small { font-size:12px; }
+.learner-shell .stat-grid b { font-size:30px; font-weight:600; }
+.learner-shell .stat-grid em { font-size:11px; }
+.learner-shell .row-heading h2 { font-size:22px; font-weight:600; }
+.learner-shell .row-heading p,
+.learner-shell .row-heading button { font-size:13px; }
+.learner-shell .learning-art > em { font-size:10px; }
+.learner-shell .learning-card-body > small { font-size:12px; }
+.learner-shell .learning-card h3 { font-size:16px; min-height:44px; font-weight:600; }
+.learner-shell .meta { font-size:12px; }
+.learner-shell .card-progress b { font-size:12px; }
+.learner-shell .upcoming span small { font-size:10px; }
+.learner-shell .upcoming article div b { font-size:13px; }
+.learner-shell .upcoming article div small { font-size:11px; }
+.learner-shell .library-hero p { font-size:16px; max-width:760px; line-height:1.6; }
+.learner-shell .filter-row button,
+.learner-shell .content-toolbar button { font-size:13px; }
+.learner-shell .catalogue-summary span { font-size:14px; }
+.learner-shell .notification-pop p { font-size:13px; }
+.learner-shell .notification-pop b { font-size:15px; }
+
+.catalogue-admin-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:0 0 18px; }
+.catalogue-admin-summary article { background:white; border:1px solid var(--line); border-radius:16px; padding:20px; }
+.catalogue-admin-summary b,.catalogue-admin-summary span { display:block; }
+.catalogue-admin-summary b { font-size:32px; font-weight:600; }
+.catalogue-admin-summary span { color:var(--muted); font-size:13px; margin-top:4px; }
+.path-course-stack { display:grid; gap:8px; margin:20px 0; max-height:390px; overflow:auto; }
+.path-course-stack button { border:1px solid var(--line); background:white; border-radius:12px; padding:12px; display:flex; align-items:center; text-align:left; }
+.path-course-stack button > span { flex:1; }
+.path-course-stack b,.path-course-stack small { display:block; }
+.path-course-stack b { font-size:14px; font-weight:600; }
+.path-course-stack small { color:var(--muted); font-size:12px; margin-top:4px; }
+.path-course-stack svg { width:17px; color:var(--muted); }
+
+@media(max-width:900px){
+  .catalogue-admin-summary { grid-template-columns:1fr; }
+}
+
