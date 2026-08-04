@@ -19,6 +19,13 @@
   --line: #e8e8ee;
   --soft: #f6f6f9;
   --radius: 24px;
+  /* Shared admin type scale. Feature surfaces should consume these tokens
+     instead of inventing sub-12px text that becomes unreadable on large screens. */
+  --atlas-admin-caption: 12px;
+  --atlas-admin-label: 13px;
+  --atlas-admin-body: 15px;
+  --atlas-admin-control: 16px;
+  --atlas-admin-title: clamp(30px, 2.5vw, 42px);
 }
 
 * { box-sizing: border-box; }

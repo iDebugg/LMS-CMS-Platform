@@ -131,7 +131,7 @@ const emptySubscribe=()=>()=>{};
 const readLearnerProgressServer=():LearnerProgress=>({ready:false,completed:new Set(),lessonPassed:()=>false,moduleReady:()=>false,modulePassed:()=>false,moduleUnlocked:index=>index===0,lessonUnlocked:(moduleIndex,lessonIndex)=>moduleIndex===0&&lessonIndex===0,finalReady:false});
 
 function AtlasMark({ light = false }: { light?: boolean }) {
-  return <Link href="/" className={`journey-brand ${light ? "light" : ""}`}><span><i/><i/><i/></span><strong>von newman <b>atlas</b></strong></Link>;
+  return <Link href="/" className={`journey-brand ${light ? "light" : ""}`}><span><i/><i/><i/></span><strong>Von Newman <b>Atlas</b></strong></Link>;
 }
 
 export function AuthExperience() {
@@ -195,7 +195,7 @@ export function AuthExperience() {
           <label className="remember"><input type="checkbox" defaultChecked/><span>Keep me signed in on this device</span></label>
           <button className="journey-primary" onClick={signIn} disabled={loading}>{loading?"Preparing your workspace…":<>Sign in <ArrowRight/></>}</button>
           <button className="organisation-link" onClick={()=>setMode("organisation")}>Use an organisation code</button>
-          <p className="auth-legal">By continuing, you agree to Atlas’s <a>Terms</a> and <a>Privacy Policy</a>.</p>
+          <p className="auth-legal">By continuing, you agree to Atlas’s <Link href="/terms">Terms</Link> and <Link href="/privacy">Privacy Policy</Link>.</p>
         </>}
         {mode==="accounts"&&<>
           <button className="back-link" onClick={()=>setMode("login")}><ArrowLeft/> Back to sign in</button>

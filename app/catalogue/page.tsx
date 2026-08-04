@@ -1,0 +1,7 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight, BookOpen } from "lucide-react";
+import { atlasCatalogue } from "../ui/catalogue.generated";
+import { PublicFooter, PublicHeader } from "../ui/PublicSite";
+export const metadata: Metadata = { title: "Course Catalogue | Von Newman Atlas", description: "Explore the official Von Newman Atlas learning pathways and courses." };
+export default function Catalogue(){const courses=atlasCatalogue.reduce((sum,path)=>sum+path.courses.length,0);return <div className="public-site catalogue-page"><a className="skip-link" href="#main-content">Skip to main content</a><PublicHeader/><main id="main-content"><section className="catalogue-public-hero"><span>Official Atlas catalogue</span><h1>Learning organised around real capability.</h1><p>Explore {atlasCatalogue.length} structured pathways and {courses} courses designed for public service and professional growth.</p></section><section className="catalogue-public-grid">{atlasCatalogue.map(path=><article key={path.code}><header><span>{path.code}</span><small>{path.section}</small></header><h2>{path.title}</h2><p>{path.audience}</p><ul>{path.courses.map(course=><li key={course.code}><BookOpen/><span><b>{course.title}</b><small>{course.code} · {course.lessons.length} lessons</small></span></li>)}</ul><Link href="/contact">Ask about this pathway <ArrowRight/></Link></article>)}</section></main><PublicFooter/></div>}

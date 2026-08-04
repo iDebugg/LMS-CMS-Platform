@@ -29,7 +29,7 @@ export function CertificateDesign({
   return <div className="certificate-wrap">
     <article>
       <div className="certificate-brand">
-        <div className="journey-brand"><span><i/><i/><i/></span><strong>von newman <b>atlas</b></strong></div>
+        <div className="journey-brand"><span><i/><i/><i/></span><strong>Von Newman <b>Atlas</b></strong></div>
         <span>FEDERAL SERVICE<br/>LEARNING DIRECTORATE</span>
       </div>
       <small>CERTIFICATE OF COMPLETION</small>

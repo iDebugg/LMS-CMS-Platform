@@ -6,6 +6,8 @@ import "./journeys.css";
 import "./platform-refinements.css";
 import "./learning-flows.css";
 import "./course-studio.css";
+import "./legal.css";
+import "./public-pages.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),

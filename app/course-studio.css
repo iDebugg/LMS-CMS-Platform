@@ -491,7 +491,7 @@
   color: #5b43d6;
   font-weight: 600;
 }
-.lesson-assessment-strip {
+.studio-lessons article > div > .lesson-assessment-strip {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -500,6 +500,12 @@
   padding: 12px 14px;
   border-radius: 12px;
   background: #f4f1ff;
+}
+.studio-lessons article > div > .lesson-assessment-strip > .assessment-strip-actions {
+  display: flex;
+  margin-left: auto;
+  justify-content: flex-end;
+  flex: 0 0 auto;
 }
 .lesson-assessment-strip > div { display: flex; align-items: center; gap: 10px; }
 .lesson-assessment-strip svg { width: 18px; }
@@ -522,6 +528,10 @@
   background: #faf9ff;
 }
 .module-quiz-strip.enabled { border-style: solid; background: #f0edff; }
+.module-quiz-strip > .assessment-strip-actions {
+  justify-self: end;
+  justify-content: flex-end;
+}
 .edit-question-set { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; min-height: 46px; margin-top: 18px; border: 1px solid #d7d1ee; border-radius: 14px; background: #f0edff; color: #513ccf; font-size: 12px; font-weight: 600; }
 .edit-question-set svg { width: 17px; }
 
