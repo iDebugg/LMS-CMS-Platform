@@ -295,7 +295,6 @@ function Landing() {
             <p>One joyful platform to create learning, grow talent and turn every achievement into measurable progress.</p>
             <div className="hero-actions">
               <button className="button button-primary" onClick={() => window.location.href="/contact"}>Request a demo <ArrowRight size={17} /></button>
-              <button className="button button-white" onClick={() => window.location.href="/platform"}><CirclePlay size={18} /> See how Atlas works</button>
             </div>
             <div className="hero-proof">
               <div className="avatar-stack"><span>AB</span><span>CO</span><span>NE</span><span>+2k</span></div>
@@ -317,16 +316,16 @@ function Landing() {
 
         <section id="platform" className="section ecosystem">
           <div className="section-heading">
-            <span className="kicker">One connected ecosystem</span>
-            <h2>From a bright idea to<br />real learning impact.</h2>
-            <p>Atlas joins the control of a powerful CMS with a learner experience people actually want to return to.</p>
+            <span className="kicker">FROM LEARNING TO PERFORMANCE</span>
+            <h2>One platform. Every learning initiative.</h2>
+            <p>From onboarding to compliance, Atlas helps organizations deliver learning that drives measurable results.</p>
           </div>
           <div className="flow-grid">
             <article className="flow-card flow-cms">
               <span className="flow-number">01</span>
               <div className="flow-icon"><Library /></div>
-              <h3>Create & curate</h3>
-              <p>Build courses, assessments and pathways from a reusable content library.</p>
+              <h3>Create learning that matters.</h3>
+              <p>Build engaging learning experiences that align with your organization's goals.</p>
               <div className="mini-ui">
                 <span className="mini-thumb">AI</span>
                 <div><b>AI for Smarter Service</b><small>6 modules · Draft saved</small></div>
@@ -337,16 +336,16 @@ function Landing() {
             <article className="flow-card flow-org">
               <span className="flow-number">02</span>
               <div className="flow-icon"><Users /></div>
-              <h3>Shape the experience</h3>
-              <p>Choose the right organisation, people, deadlines and access rules.</p>
+              <h3>Reach the right people.</h3>
+              <p>Automatically deliver learning based on roles, departments, teams, or locations.</p>
               <div className="org-pills"><span>Digital Services</span><span>Managers</span><span>2026 Cohort</span></div>
             </article>
             <div className="flow-arrow"><ArrowRight /></div>
             <article className="flow-card flow-learn">
               <span className="flow-number">03</span>
               <div className="flow-icon"><GraduationCap /></div>
-              <h3>Learn & grow</h3>
-              <p>Give every learner a relevant journey with progress they can see and feel.</p>
+              <h3>See the impact.</h3>
+              <p>Monitor progress, completion, and learning outcomes to understand how training contributes to organizational performance.</p>
               <div className="completion"><span><Check size={16} /> Completed</span><b>+240 pts</b></div>
             </article>
           </div>
@@ -372,7 +371,7 @@ function Landing() {
               <li><Check /> Catch overdue or difficult learning early</li>
               <li><Check /> Prove compliance with trusted records</li>
             </ul>
-            <button className="button button-dark" onClick={() => window.location.href="/organisations"}>Explore organisation insights <ArrowRight size={17} /></button>
+           
           </div>
           <div className="impact-dashboard">
             <div className="impact-top"><span>Learning overview</span><small>Last 30 days <ChevronDown size={14} /></small></div>
@@ -386,7 +385,7 @@ function Landing() {
           <span className="kicker">Your people are ready</span>
           <h2>Make learning the best part<br />of their working day.</h2>
           <p>Explore the connected Atlas learner experience—from guided pathways to trusted certification.</p>
-          <div><button className="button button-white" onClick={() => window.location.href="/auth"}>Open learner experience <ArrowRight size={17} /></button><button className="button button-outline-light" onClick={() => window.location.href="/contact"}>Request a demo</button></div>
+          <div><button className="button button-white" onClick={() => window.location.href="/auth"}>Open learner experience <ArrowRight size={17} /></button></div>
         </section>
       </main>
       <footer><Brand light /><p>Learning infrastructure for people and organisations that want to move forward.</p><div><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/security">Security</Link><Link href="/accessibility">Accessibility</Link><Link href="/support">Support</Link><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></div><small>© 2026 Von Newman Technology Consultant Limited.</small></footer>
