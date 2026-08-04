@@ -292,7 +292,7 @@ function Landing() {
           <div className="hero-copy">
             <span className="eyebrow"><Sparkles size={15} /> Learning, beautifully connected</span>
             <h1 className="">Build skills that<br /><em>move organisations forward.</em></h1>
-            <p>One joyful platform to create learning, grow talent and turn every achievement into measurable progress.</p>
+            <p>A modern learning platform that helps organizations onboard employees, upskill teams, deliver compliance training, and measure learning outcomes all from one place.</p>
             <div className="hero-actions">
               <button className="button button-primary" onClick={() => window.location.href="/contact"}>Request a demo <ArrowRight size={17} /></button>
             </div>
