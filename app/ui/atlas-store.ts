@@ -63,7 +63,7 @@ export type AtlasCourse = Course & {
   pathTitle: string;
   audience: string;
   curriculum: AtlasModule[];
-  lifecycle: "Draft" | "In review" | "Published" | "Archived";
+  lifecycle: "Draft" | "In review" | "Scheduled" | "Published" | "Archived";
   updatedAt: string;
   fullDescription?: string;
   secondaryCategories?: string[];
@@ -95,6 +95,7 @@ export type AtlasCourse = Course & {
   accessPolicy?: {
     audience: string;
     availability: "Immediately after publication" | "Scheduled";
+    scheduledAt?: string;
   };
 };
 
@@ -304,8 +305,11 @@ export function readAtlasState(): AtlasState {
     const authoredCourses = (stored.courses ?? []).filter(course => !seed.courses.some(canonical => canonical.id === course.id));
     const merged = { ...seed, ...stored, courses: [...canonicalCourses, ...authoredCourses] };
     const courses = merged.courses.map(course => {
+      const releaseAt=course.accessPolicy?.scheduledAt ? new Date(course.accessPolicy.scheduledAt).getTime() : 0;
+      const released=course.lifecycle==="Scheduled"&&releaseAt>0&&releaseAt<=Date.now();
+      const current=released?{...course,published:true,lifecycle:"Published" as const}:course;
       const persistedProgress = window.localStorage.getItem(`atlas-progress-${course.id}`);
-      return persistedProgress === null ? course : { ...course, progress: Number(persistedProgress) };
+      return persistedProgress === null ? current : { ...current, progress: Number(persistedProgress) };
     });
     const generatedCredentials = courses.flatMap(course => {
       const id = window.localStorage.getItem(`atlas-certificate-${course.id}`);
@@ -345,7 +349,7 @@ export function useAtlasState() {
 export function publishCourse(course: AtlasCourse) {
   return updateAtlasState(state => ({
     ...state,
-    courses: [...state.courses.filter(item => item.id !== course.id), { ...course, published: true }],
+    courses: [...state.courses.filter(item => item.id !== course.id), course],
   }));
 }
 

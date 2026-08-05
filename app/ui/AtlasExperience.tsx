@@ -17,6 +17,7 @@ import {
   CirclePlay,
   Clock3,
   Download,
+  Eye,
   FileQuestion,
   FileText,
   Filter,
@@ -28,7 +29,6 @@ import {
   Library,
   ListChecks,
   Mail,
-  Menu,
   Megaphone,
   MoreHorizontal,
   Pencil,
@@ -69,6 +69,7 @@ import {
 } from "./atlas-store";
 import { CertificateDesign } from "./CertificateDesign";
 import { CourseStudio, MediaGallery } from "./CourseStudio";
+import { PublicFooter, PublicHeader } from "./PublicSite";
 
 gsap.registerPlugin(ScrollTrigger, SplitText, useGSAP);
 
@@ -170,34 +171,6 @@ export function AtlasExperience({ initialView }: Props) {
 
 function Landing() {
   const root = useRef<HTMLDivElement>(null);
-  const [menu, setMenu] = useState(false);
-  const navRef = useRef<HTMLElement>(null);
-  const [navHeight, setNavHeight] = useState(0);
-  const [navScrolled, setNavScrolled] = useState(false);
-
-  // Fix the navbar to the viewport, and keep a spacer of the exact same height
-  // in the flow so the rest of the layout stays untouched.
-  useEffect(() => {
-    const node = navRef.current;
-    if (!node) return;
-    const measure = () => {
-      setNavHeight(node.offsetHeight);
-      ScrollTrigger.refresh();
-    };
-    const onScroll = () => setNavScrolled((window.scrollY || 0) > 12);
-    measure();
-    onScroll();
-    window.addEventListener("resize", measure);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    const observer =
-      typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
-    observer?.observe(node);
-    return () => {
-      window.removeEventListener("resize", measure);
-      window.removeEventListener("scroll", onScroll);
-      observer?.disconnect();
-    };
-  }, []);
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
@@ -244,6 +217,10 @@ function Landing() {
         .from(".impact-copy > *", { x: -60, autoAlpha: 0, stagger: .1 })
         .from(".impact-dashboard", { x: 80, rotation: 7, scale: .92, autoAlpha: 0 }, "<.15")
         .from(".bars > span", { scaleY: .05, transformOrigin: "bottom", stagger: .05 }, "-=.4");
+      gsap.timeline({ scrollTrigger: { trigger: ".delivery-story", start: "top 72%", end: "center center", scrub: .7 } })
+        .from(".delivery-copy > *", { x: -56, autoAlpha: 0, stagger: .09 })
+        .from(".delivery-route", { y: 50, autoAlpha: 0, stagger: .12 }, "<.1")
+        .from(".delivery-connector", { scaleX: 0, transformOrigin: "left center", stagger: .08 }, "-=.35");
       return () => split.revert();
     });
     return () => mm.revert();
@@ -251,39 +228,7 @@ function Landing() {
 
   return (
     <div ref={root} className="landing">
-      <header
-        ref={navRef}
-        className="public-nav"
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          width: "100%",
-          zIndex: 1100,
-          backdropFilter: navScrolled ? "saturate(180%) blur(14px)" : undefined,
-          WebkitBackdropFilter: navScrolled ? "saturate(180%) blur(14px)" : undefined,
-          boxShadow: navScrolled ? "0 10px 30px rgba(20, 15, 60, .08)" : undefined,
-          transition: "box-shadow .3s ease, backdrop-filter .3s ease",
-        }}
-      >
-        <Brand />
-        <nav className={menu ? "nav-open" : ""}>
-          <Link href="/platform">Platform</Link>
-          <Link href="/lms">LMS</Link>
-          <Link href="/organisations">For organisations</Link>
-          <Link href="/catalogue">Catalogue</Link>
-          <Link href="/about">Company</Link>
-        </nav>
-        <div className="nav-actions">
-          <button className="text-button" onClick={() => window.location.href="/auth"}>Sign in</button>
-          <button className="button button-dark" onClick={() => window.location.href="/contact"}>Request a demo <ArrowRight size={16} /></button>
-        </div>
-        <button className="mobile-menu" aria-label="Toggle menu" onClick={() => setMenu(!menu)}>
-          {menu ? <X /> : <Menu />}
-        </button>
-      </header>
-      <div aria-hidden="true" style={{ height: navHeight }} />
+      <PublicHeader />
 
       <main>
         <section className="hero">
@@ -325,7 +270,7 @@ function Landing() {
               <span className="flow-number">01</span>
               <div className="flow-icon"><Library /></div>
               <h3>Create learning that matters.</h3>
-              <p>Build engaging learning experiences that align with your organization's goals.</p>
+              <p>Build engaging learning experiences that align with your organisation&apos;s goals.</p>
               <div className="mini-ui">
                 <span className="mini-thumb">AI</span>
                 <div><b>AI for Smarter Service</b><small>6 modules · Draft saved</small></div>
@@ -361,6 +306,22 @@ function Landing() {
           </div>
         </section>
 
+        <section className="section delivery-story">
+          <div className="delivery-copy">
+            <span className="kicker">Atlas content delivery</span>
+            <h2>Already have an LMS?<br />Bring Atlas content into it.</h2>
+            <p>Atlas includes a powerful content-management capability for creating, governing and distributing courses, modules, videos, assessments and learning resources. Your organisation can license Von Newman content without replacing the learning environment you already use.</p>
+            <Link className="button button-dark" href="/content-delivery">Explore content delivery <ArrowRight size={17}/></Link>
+          </div>
+          <div className="delivery-map" aria-label="Atlas content can connect to an organisation's existing learning system">
+            <article className="delivery-route atlas-route"><Library/><span><b>Atlas content</b><small>Courses, modules, video and assessments</small></span></article>
+            <i className="delivery-connector" aria-hidden="true" />
+            <article className="delivery-route delivery-methods"><Globe2/><span><b>Flexible delivery</b><small>APIs, hosted delivery and portable packages</small></span></article>
+            <i className="delivery-connector" aria-hidden="true" />
+            <article className="delivery-route customer-route"><GraduationCap/><span><b>Your learning environment</b><small>Keep the LMS your people already know</small></span></article>
+          </div>
+        </section>
+
         <section id="organisations" className="section impact">
           <div className="impact-copy">
             <span className="kicker">Clarity at every level</span>
@@ -388,7 +349,7 @@ function Landing() {
           <div><button className="button button-white" onClick={() => window.location.href="/auth"}>Open learner experience <ArrowRight size={17} /></button></div>
         </section>
       </main>
-      <footer><Brand light /><p>Learning infrastructure for people and organisations that want to move forward.</p><div><Link href="/about">About</Link><Link href="/contact">Contact</Link><Link href="/security">Security</Link><Link href="/accessibility">Accessibility</Link><Link href="/support">Support</Link><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></div><small>© 2026 Von Newman Technology Consultant Limited.</small></footer>
+      <PublicFooter />
       <BackToTop />
     </div>
   );
@@ -422,11 +383,15 @@ function LMS() {
   const [profileOpen,setProfileOpen]=useState(false);
   const [globalQuery,setGlobalQuery]=useState("");
   const [completed, setCompleted] = useState(false);
+  const [session,setSession]=useState({name:"Ifeoma Kalu",role:"organisation-admin",title:"Workspace administrator",initials:"IK"});
   const atlas = useAtlasState();
-  const isOrganisationAdmin=true;
+  const isOrganisationAdmin=session.role==="organisation-admin";
+  const isPlatformAdmin=session.role==="platform-admin";
   const learnerNav=isOrganisationAdmin?[...lmsNav,{label:"Staff analytics",icon:BarChart3}]:lmsNav;
   const learnerCourses = atlas.courses.filter(course => course.published);
   const current = learnerCourses.find(course => course.id === "x-03-2") || learnerCourses[0];
+  useEffect(()=>{const frame=requestAnimationFrame(()=>{const saved=localStorage.getItem("atlas-session");if(saved)try{const value=JSON.parse(saved) as {name?:string;role?:string};const name=value.name||"Amara Okafor";const role=value.role||"learner";setSession({name,role,title:role==="organisation-admin"?"Workspace administrator":role==="platform-admin"?"Von Newman administrator":"Learner",initials:name.split(" ").map(part=>part[0]).join("").slice(0,2).toUpperCase()})}catch{}const requested=localStorage.getItem("atlas-lms-open-tab");if(requested){setActive(requested);localStorage.removeItem("atlas-lms-open-tab")}});return()=>cancelAnimationFrame(frame)},[]);
+  const permittedActive=active==="Staff analytics"&&!isOrganisationAdmin?"Overview":active;
   useGSAP(() => {
     const mm=gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)",()=>{
@@ -446,23 +411,23 @@ function LMS() {
         <nav>{learnerNav.map(({label,icon:Icon})=><button key={label} className={`${active===label?"active":""} ${label==="Staff analytics"?"admin-only-nav":""}`} onClick={()=>setActive(label)}><Icon size={19}/><span>{label}</span>{label==="My learning"&&<em>4</em>}{label==="Staff analytics"&&<small>ADMIN</small>}</button>)}</nav>
         <div className="sidebar-spacer" />
         <div className="weekly-card"><div><Zap size={18}/><b>Weekly goal</b></div><div className="weekly-ring"><strong>3</strong><small>of 4 days</small></div><p>One more learning day to keep your rhythm.</p></div>
-        <button className="profile-row" onClick={()=>setProfileOpen(!profileOpen)}><span className="avatar avatar-photo">IK</span><span><b>Ifeoma Kalu</b><small>Workspace administrator</small></span><MoreHorizontal size={18}/></button>
+        <button className="profile-row" onClick={()=>setProfileOpen(!profileOpen)}><span className="avatar avatar-photo">{session.initials}</span><span><b>{session.name}</b><small>{session.title}</small></span><MoreHorizontal size={18}/></button>
         {profileOpen&&<div className="profile-menu"><button onClick={()=>setActive("Achievements")}><UserRound/> Learning profile</button><button onClick={()=>{localStorage.removeItem("atlas-session");window.location.href="/auth"}}><X/> Sign out</button></div>}
       </aside>
       <main className="app-main">
         <header className="app-topbar">
           <div className="mobile-brand"><Brand /></div>
           <label className="search-box"><Search size={18}/><input aria-label="Search courses" value={globalQuery} onChange={e=>{setGlobalQuery(e.target.value);if(e.target.value)setActive("Explore")}} placeholder="Search courses, skills or pathways" /><kbd>⌘ K</kbd></label>
-          <div className="top-actions"><button aria-label="Notifications" onClick={()=>{setNotice(!notice);if(!notice)markNoticesRead()}}><Bell size={20}/>{atlas.notices.some(item=>!item.read)&&<i />}</button><button className="button button-small button-primary" onClick={()=>goTo("cms")}>View CMS</button></div>
+          <div className="top-actions"><button aria-label="Notifications" onClick={()=>{setNotice(!notice);if(!notice)markNoticesRead()}}><Bell size={20}/>{atlas.notices.some(item=>!item.read)&&<i />}</button>{isPlatformAdmin&&<button className="button button-small button-primary" onClick={()=>goTo("cms")}>View CMS</button>}</div>
           {notice&&<div className="notification-pop"><b>Notifications</b>{atlas.notices.slice(0,5).map(item=><p key={item.id}><strong>{item.title}</strong><br/>{item.message}<small>{item.createdAt}</small></p>)}</div>}
         </header>
         <div className="dashboard-content view-enter">
           <section className="welcome-row">
-            <div><span className="today">Wednesday, 30 July</span><h1>Good morning, Ifeoma <span>👋🏾</span></h1><p>Small steps, real growth. Here’s what’s next.</p></div>
+            <div><span className="today">Wednesday, 30 July</span><h1>Good morning, {session.name.split(" ")[0]} <span>👋🏾</span></h1><p>Small steps, real growth. Here’s what’s next.</p></div>
             <div className="level-pill"><span><Sparkles size={18}/></span><div><small>Current level</small><b>Practitioner</b></div><strong>2,840 XP</strong></div>
           </section>
 
-          {active === "Overview" ? <>
+          {permittedActive === "Overview" ? <>
             <section className="continue-card" style={{background:current.color}}>
               <div className="continue-copy">
                 <span className="status-pill mandatory">Mandatory · {current.due}</span>
@@ -494,7 +459,7 @@ function LMS() {
                 </div>
               </aside>
             </section>
-          </> : <LearnerWorkspace active={active} courses={learnerCourses} globalQuery={globalQuery} />}
+          </> : <LearnerWorkspace active={permittedActive} courses={learnerCourses} globalQuery={globalQuery} />}
         </div>
       </main>
       <BackToTop containerSelector=".app-main" />
@@ -512,15 +477,22 @@ function LearningCard({ course }: { course: Course }) {
 function LearnerWorkspace({active,courses:availableCourses,globalQuery}:{active:string;courses:AtlasCourse[];globalQuery:string}) {
   const atlas=useAtlasState();
   const [query,setQuery]=useState("");
-  const [filter,setFilter]=useState("In progress");
+  const [filter,setFilter]=useState("All learning");
   const [pathGroup,setPathGroup]=useState("In progress");
   const [selectedPath,setSelectedPath]=useState("");
   const effectiveQuery=query||globalQuery;
-  const visible=availableCourses.filter(c=>(filter==="All"||filter==="In progress"&&c.progress>0&&c.progress<100||filter==="Mandatory"&&c.status==="Mandatory"||filter==="Completed"&&c.progress===100)&&`${c.title} ${c.category} ${c.code}`.toLowerCase().includes(effectiveQuery.toLowerCase()));
+  useEffect(()=>{if(active!=="Pathways")return;const frame=requestAnimationFrame(()=>{const requested=localStorage.getItem("atlas-lms-open-pathway");if(requested){setSelectedPath(requested);localStorage.removeItem("atlas-lms-open-pathway")}});return()=>cancelAnimationFrame(frame)},[active]);
+  const exploreFilters=["All courses","Recommended","Open catalogue"];
+  const learningFilters=["All learning","In progress","Mandatory","Assigned","Completed"];
+  const effectiveFilter=(active==="Explore"?exploreFilters:learningFilters).includes(filter)?filter:active==="Explore"?"All courses":"All learning";
+  const surfaced=active==="Explore"
+    ? availableCourses.filter(course=>course.status==="Available"||course.status==="Recommended")
+    : availableCourses.filter(course=>course.progress>0||course.status==="Mandatory"||course.status==="Assigned");
+  const visible=surfaced.filter(c=>(effectiveFilter==="All learning"||effectiveFilter==="All courses"||effectiveFilter==="In progress"&&c.progress>0&&c.progress<100||effectiveFilter==="Mandatory"&&c.status==="Mandatory"||effectiveFilter==="Assigned"&&c.status==="Assigned"||effectiveFilter==="Recommended"&&c.status==="Recommended"||effectiveFilter==="Open catalogue"&&c.status==="Available"||effectiveFilter==="Completed"&&c.progress===100)&&`${c.title} ${c.category} ${c.code}`.toLowerCase().includes(effectiveQuery.toLowerCase()));
   if(active==="Staff analytics") return <StaffAnalytics/>;
   if(active==="My learning"||active==="Explore") return <section className="library-view">
     <div className="library-hero"><span className="kicker">{active==="Explore"?"Organisation catalogue":"Your active plan"}</span><h2>{active}</h2><p>{active==="Explore"?"Search courses, skills and pathways available in the Federal Service workspace.":"Assignments, voluntary learning and completed work in one professional record."}</p></div>
-    <div className="content-toolbar scroll-reveal"><label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search your learning"/></label><div>{["All","In progress","Mandatory","Completed"].map(x=><button key={x} className={filter===x?"active":""} onClick={()=>setFilter(x)}>{x}</button>)}</div><button><Filter size={16}/> Filters</button></div>
+    <div className="content-toolbar scroll-reveal"><label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder={active==="Explore"?"Search the catalogue":"Search your learning"}/></label><div>{(active==="Explore"?exploreFilters:learningFilters).map(x=><button key={x} className={effectiveFilter===x?"active":""} onClick={()=>setFilter(x)}>{x}</button>)}</div></div>
     <div className="catalogue-summary scroll-reveal"><span><b>{visible.length}</b> learning experiences</span><span><b>{new Set(visible.map(course=>course.collection)).size}</b> catalogue collections</span><span><b>{visible.reduce((sum,course)=>sum+course.modules,0)}</b> structured modules</span></div>
     {visible.length?<div className="library-grid scroll-reveal">{visible.map(c=><LearningCard course={c} key={c.id}/>)}</div>:<EmptyState title="No matching learning" body="Try a different status or search term."/>}
   </section>;
@@ -546,11 +518,13 @@ const cmsNav = [
 
 function CMS() {
   const root=useRef<HTMLDivElement>(null);
+  const [session,setSession]=useState({name:"Von Newman administrator",initials:"VN"});
   const [active,setActive]=useState("Dashboard");
   const [studioOpen,setStudioOpen]=useState(false);
   const [studioCourse,setStudioCourse]=useState<AtlasCourse|null>(null);
   const [published,setPublished]=useState<AtlasCourse|null>(null);
   const atlas=useAtlasState();
+  useEffect(()=>{const frame=requestAnimationFrame(()=>{const saved=localStorage.getItem("atlas-session");if(!saved)return;try{const value=JSON.parse(saved) as {name?:string;role?:string};if(value.role&&value.role!=="platform-admin"){window.location.replace("/learn");return}const name=value.name||"Von Newman administrator";setSession({name,initials:name.split(" ").map(part=>part[0]).join("").slice(0,2).toUpperCase()})}catch{}});return()=>cancelAnimationFrame(frame)},[]);
   useGSAP(()=>{
     const mm=gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)",()=>{
@@ -563,7 +537,7 @@ function CMS() {
   return <div ref={root} className="app-shell cms-shell">
     <aside className="app-sidebar cms-sidebar"><Brand light/><button className="create-button" onClick={()=>{setStudioCourse(null);setStudioOpen(true)}}><Plus size={18}/> Create new <ChevronDown size={15}/></button>
       <nav>{cmsNav.map(group=><div key={group.group}><small>{group.group}</small>{group.items.map(([label,Icon])=><button key={label as string} className={!studioOpen&&active===label?"active":""} onClick={()=>{setStudioOpen(false);setActive(label as string)}}><Icon size={18}/><span>{label as string}</span>{label==="Courses"&&<em>{atlas.courses.length}</em>}</button>)}</div>)}</nav>
-      <div className="sidebar-spacer"/><button className="nav-settings"><Settings size={18}/> Settings</button><button className="profile-row"><span className="avatar admin-avatar">IK</span><span><b>Ifeoma Kalu</b><small>Platform administrator</small></span><MoreHorizontal size={18}/></button>
+      <div className="sidebar-spacer"/><button className="profile-row"><span className="avatar admin-avatar">{session.initials}</span><span><b>{session.name}</b><small>Von Newman administrator</small></span><MoreHorizontal size={18}/></button>
     </aside>
     <main className="app-main">
       <header className="app-topbar cms-topbar"><div><small>Federal Service workspace</small><ChevronDown size={14}/></div><label className="search-box"><Search size={18}/><input aria-label="Search CMS" placeholder="Search Atlas CMS" /><kbd>⌘ K</kbd></label><div className="top-actions"><button><Bell size={20}/><i/></button><button className="button button-small button-light" onClick={()=>goTo("lms")}>Preview LMS <ArrowRight size={15}/></button></div></header>
@@ -577,7 +551,7 @@ function CMS() {
 
 function CMSDashboard({onCreate,published,onNavigate}:{onCreate:()=>void;published:AtlasCourse|null;onNavigate:(x:string)=>void}) {
   return <><section className="cms-heading"><div><span className="today">Wednesday, 30 July</span><h1>Good morning, Ifeoma</h1><p>Here’s how learning is moving across your ecosystem.</p></div><div><button className="button button-white" onClick={()=>onNavigate("Users")}><Upload size={16}/> Import users</button><button className="button button-primary" onClick={onCreate}><Plus size={17}/> Create course</button></div></section>
-    {published&&<div className="success-banner"><CheckCircle2/><div><b>Course published successfully</b><p>“{published.title}” is now available to {published.learners.toLocaleString()} learners.</p></div><button onClick={()=>window.location.href=`/learn/course/${published.id}`}>View in LMS <ArrowRight size={15}/></button></div>}
+    {published&&<div className="success-banner"><CheckCircle2/><div><b>{published.lifecycle==="Scheduled"?"Course scheduled successfully":"Course published successfully"}</b><p>{published.lifecycle==="Scheduled"?`“${published.title}” will become visible at ${new Date(published.accessPolicy?.scheduledAt||"").toLocaleString("en-NG")}.`:`“${published.title}” is now available to ${published.learners.toLocaleString()} learners.`}</p></div>{published.lifecycle!=="Scheduled"&&<button onClick={()=>window.location.href=`/learn/course/${published.id}`}>View in LMS <ArrowRight size={15}/></button>}</div>}
     <section className="cms-stats"><article><span className="stat-icon purple"><Users/></span><div><small>Active learners</small><b>2,480</b><em>↑ 12.4%</em></div><BarChart3/></article><article><span className="stat-icon green"><CheckCircle2/></span><div><small>Completion rate</small><b>84%</b><em>↑ 6.2%</em></div><BarChart3/></article><article><span className="stat-icon yellow"><ShieldCheck/></span><div><small>Compliance</small><b>91%</b><em>↑ 3.8%</em></div><BarChart3/></article><article><span className="stat-icon coral"><Award/></span><div><small>Certificates issued</small><b>1,284</b><em>+146 this month</em></div><BarChart3/></article></section>
     <section className="cms-grid">
       <article className="panel performance-panel"><div className="panel-heading"><div><h2>Learning performance</h2><p>Enrolments and completions over time</p></div><button>Last 6 months <ChevronDown size={14}/></button></div><div className="large-chart"><div className="y-labels"><span>4k</span><span>3k</span><span>2k</span><span>1k</span><span>0</span></div><div className="line-area"><svg viewBox="0 0 700 210" preserveAspectRatio="none"><defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#6552df" stopOpacity=".28"/><stop offset="1" stopColor="#6552df" stopOpacity="0"/></linearGradient></defs><path d="M0 176 C60 160,70 130,130 142 S220 94,278 110 S360 60,420 82 S510 28,560 48 S650 25,700 12 L700 210 L0 210Z" fill="url(#area)"/><path d="M0 176 C60 160,70 130,130 142 S220 94,278 110 S360 60,420 82 S510 28,560 48 S650 25,700 12" fill="none" stroke="#6552df" strokeWidth="4" strokeLinecap="round"/></svg><div className="x-labels"><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span></div></div></div></article>
@@ -591,23 +565,32 @@ function CMSDashboard({onCreate,published,onNavigate}:{onCreate:()=>void;publish
 function CMSSection({active,onCreate,onEdit,published,catalogue}:{active:string;onCreate:()=>void;onEdit:(course:AtlasCourse)=>void;published:AtlasCourse|null;catalogue:AtlasCourse[]}) {
   const isCourses=active==="Courses"||active==="Library";
   const [query,setQuery]=useState("");
-  const [status,setStatus]=useState<"All"|"Published"|"Draft">("All");
+  const [status,setStatus]=useState<"All"|"Published"|"Scheduled"|"Draft">("All");
   const [toast,setToast]=useState("");
   const emptyFilters={organisations:[] as string[],pathways:[] as string[],levels:[] as string[],lifecycles:[] as string[]};
   const [filters,setFilters]=useState(emptyFilters);
   const [draftFilters,setDraftFilters]=useState(emptyFilters);
   const [filterOpen,setFilterOpen]=useState(false);
+  const [pathwayFilterQuery,setPathwayFilterQuery]=useState("");
+  const [pathwayFilterExpanded,setPathwayFilterExpanded]=useState(false);
+  const [selectedCourse,setSelectedCourse]=useState<AtlasCourse|null>(null);
   const act=(message:string)=>{setToast(message);window.setTimeout(()=>setToast(""),2200)};
   if(active==="Media") return <MediaGallery onUpload={()=>act("Upload workspace opened — select a source file and accessibility metadata")}/>;
   if(!isCourses) return <>{toast&&<div className="action-toast"><CheckCircle2/>{toast}</div>}<CMSFunctionalSection active={active} notify={act}/></>;
   const toggleDraft=(group:keyof typeof draftFilters,value:string)=>setDraftFilters(current=>({...current,[group]:current[group].includes(value)?current[group].filter(item=>item!==value):[...current[group],value]}));
   const activeFilterCount=Object.values(filters).reduce((sum,items)=>sum+items.length,0);
   const options={organisations:[...new Set(catalogue.map(c=>c.organisation))],pathways:[...new Set(catalogue.map(c=>c.pathTitle))],levels:[...new Set(catalogue.map(c=>c.level))],lifecycles:[...new Set(catalogue.map(c=>c.lifecycle))]};
-  const visibleCourses=catalogue.filter(c=>(status==="All"||status==="Published"&&c.published||status==="Draft"&&!c.published)&&`${c.title} ${c.code} ${c.category}`.toLowerCase().includes(query.toLowerCase())&&(!filters.organisations.length||filters.organisations.includes(c.organisation))&&(!filters.pathways.length||filters.pathways.includes(c.pathTitle))&&(!filters.levels.length||filters.levels.includes(c.level))&&(!filters.lifecycles.length||filters.lifecycles.includes(c.lifecycle)));
+  const visibleCourses=catalogue.filter(c=>(status==="All"||status==="Published"&&c.lifecycle==="Published"||status==="Scheduled"&&c.lifecycle==="Scheduled"||status==="Draft"&&c.lifecycle==="Draft")&&`${c.title} ${c.code} ${c.category}`.toLowerCase().includes(query.toLowerCase())&&(!filters.organisations.length||filters.organisations.includes(c.organisation))&&(!filters.pathways.length||filters.pathways.includes(c.pathTitle))&&(!filters.levels.length||filters.levels.includes(c.level))&&(!filters.lifecycles.length||filters.lifecycles.includes(c.lifecycle)));
   return <section className="cms-section"><div className="cms-heading"><div><span className="today">Atlas CMS</span><h1>{active}</h1><p>{isCourses?"Create, govern and distribute meaningful learning.":"Manage every part of your organisation’s learning ecosystem."}</p></div><button className="button button-primary" onClick={onCreate}><Plus size={17}/> {isCourses?"Create course":"Add new"}</button></div>
     {toast&&<div className="action-toast"><CheckCircle2/>{toast}</div>}
-    <div className="content-toolbar"><label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search courses or catalogue codes" /></label><div><button className={status==="All"?"active":""} onClick={()=>setStatus("All")}>All courses <b>{catalogue.length}</b></button><button className={status==="Published"?"active":""} onClick={()=>setStatus("Published")}>Published <b>{catalogue.filter(c=>c.published).length}</b></button><button className={status==="Draft"?"active":""} onClick={()=>setStatus("Draft")}>Drafts <b>{catalogue.filter(c=>!c.published).length}</b></button></div><button className={activeFilterCount?"filters-active":""} onClick={()=>{setDraftFilters(filters);setFilterOpen(true)}}><Settings size={16}/> Filters {activeFilterCount>0&&<b>{activeFilterCount}</b>}</button></div><div className="course-results-summary"><span><b>{visibleCourses.length}</b> of {catalogue.length} courses</span>{activeFilterCount>0&&<button onClick={()=>setFilters(emptyFilters)}>Clear filters</button>}</div><div className="course-table scroll-reveal"><div className="table-head"><span>Course</span><span>Status</span><span>Organisations</span><span>Enrolments</span><span>Completion</span><span>Updated</span><span/></div>{visibleCourses.map(c=><CourseRow key={c.id} course={c} onManage={()=>onEdit(c)}/>)}</div>{!visibleCourses.length&&<EmptyState title="No courses match these filters" body="Clear one or more filters to broaden the results."/>}
-    {filterOpen&&createPortal(<div className="cms-filter-backdrop" onMouseDown={()=>setFilterOpen(false)}><aside className="cms-filter-panel" onMouseDown={event=>event.stopPropagation()}><header><div><span className="today">COURSE FILTERS</span><h2>Refine the catalogue</h2><p>Select any combination. Options within a group are matched inclusively.</p></div><button onClick={()=>setFilterOpen(false)} aria-label="Close filters"><X/></button></header><div className="cms-filter-groups">{([['organisations','Organisation'],['pathways','Pathway'],['levels','Level'],['lifecycles','Lifecycle']] as const).map(([key,label])=><fieldset key={key}><legend>{label}</legend>{options[key].map(value=><label key={value}><input type="checkbox" checked={draftFilters[key].includes(value)} onChange={()=>toggleDraft(key,value)}/><span><Check/>{value}</span></label>)}</fieldset>)}</div><footer><button className="button button-white" onClick={()=>setDraftFilters(emptyFilters)}>Clear all</button><span>{Object.values(draftFilters).reduce((sum,items)=>sum+items.length,0)} selected</span><button className="button button-primary" onClick={()=>{setFilters(draftFilters);setFilterOpen(false)}}>Apply filters <ArrowRight/></button></footer></aside></div>,document.body)}
+    <div className="content-toolbar"><label className="search-box"><Search size={17}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search courses or catalogue codes" /></label><div><button className={status==="All"?"active":""} onClick={()=>setStatus("All")}>All courses <b>{catalogue.length}</b></button><button className={status==="Published"?"active":""} onClick={()=>setStatus("Published")}>Published <b>{catalogue.filter(c=>c.lifecycle==="Published").length}</b></button><button className={status==="Scheduled"?"active":""} onClick={()=>setStatus("Scheduled")}>Scheduled <b>{catalogue.filter(c=>c.lifecycle==="Scheduled").length}</b></button><button className={status==="Draft"?"active":""} onClick={()=>setStatus("Draft")}>Drafts <b>{catalogue.filter(c=>c.lifecycle==="Draft").length}</b></button></div><button className={activeFilterCount?"filters-active":""} onClick={()=>{setDraftFilters(filters);setFilterOpen(true)}}><Settings size={16}/> Filters {activeFilterCount>0&&<b>{activeFilterCount}</b>}</button></div><div className="course-results-summary"><span><b>{visibleCourses.length}</b> of {catalogue.length} courses</span>{activeFilterCount>0&&<button onClick={()=>setFilters(emptyFilters)}>Clear filters</button>}</div><div className="course-table scroll-reveal"><div className="table-head"><span>Course</span><span>Status</span><span>Organisations</span><span>Enrolments</span><span>Completion</span><span>Updated</span><span/></div>{visibleCourses.map(c=><CourseRow key={c.id} course={c} onOpen={()=>setSelectedCourse(c)} onManage={()=>onEdit(c)}/>)}</div>{!visibleCourses.length&&<EmptyState title="No courses match these filters" body="Clear one or more filters to broaden the results."/>}
+    {selectedCourse&&<CourseRecord course={selectedCourse} onClose={()=>setSelectedCourse(null)} onEdit={()=>{setSelectedCourse(null);onEdit(selectedCourse)}}/>}
+    {filterOpen&&createPortal(<div className="cms-filter-backdrop" onMouseDown={()=>setFilterOpen(false)}><aside className="cms-filter-panel" onMouseDown={event=>event.stopPropagation()}><header><div><span className="today">COURSE FILTERS</span><h2>Refine the catalogue</h2><p>Select any combination. Options within a group are matched inclusively.</p></div><button onClick={()=>setFilterOpen(false)} aria-label="Close filters"><X/></button></header><div className="cms-filter-groups">
+      <fieldset><legend>Organisation</legend>{options.organisations.map(value=><label key={value}><input type="checkbox" checked={draftFilters.organisations.includes(value)} onChange={()=>toggleDraft("organisations",value)}/><span><Check/>{value}</span></label>)}</fieldset>
+      <fieldset className="cms-filter-picker"><legend><span>Pathway</span><small>{draftFilters.pathways.length?`${draftFilters.pathways.length} selected`:`${options.pathways.length} available`}</small></legend><label className="cms-filter-search"><Search/><input aria-label="Search pathways" value={pathwayFilterQuery} onChange={event=>setPathwayFilterQuery(event.target.value)} placeholder="Start typing a pathway…"/>{pathwayFilterQuery&&<button type="button" onClick={()=>setPathwayFilterQuery("")} aria-label="Clear pathway search"><X/></button>}</label>{draftFilters.pathways.length>0&&<div className="cms-filter-selected"><small>Selected</small>{draftFilters.pathways.map(value=><button key={value} type="button" onClick={()=>toggleDraft("pathways",value)}>{value}<X/></button>)}</div>}<div className="cms-filter-options">{options.pathways.filter(value=>value.toLowerCase().includes(pathwayFilterQuery.trim().toLowerCase())).slice(0,pathwayFilterQuery||pathwayFilterExpanded?options.pathways.length:5).map(value=><label key={value}><input type="checkbox" checked={draftFilters.pathways.includes(value)} onChange={()=>toggleDraft("pathways",value)}/><span><Check/>{value}</span></label>)}{!options.pathways.some(value=>value.toLowerCase().includes(pathwayFilterQuery.trim().toLowerCase()))&&<p>No pathways match “{pathwayFilterQuery}”.</p>}</div>{!pathwayFilterQuery&&options.pathways.length>5&&<button className="cms-filter-expand" type="button" onClick={()=>setPathwayFilterExpanded(value=>!value)}>{pathwayFilterExpanded?"Show fewer pathways":`Show all ${options.pathways.length} pathways`}<ChevronDown className={pathwayFilterExpanded?"expanded":""}/></button>}</fieldset>
+      <fieldset><legend>Level</legend>{options.levels.map(value=><label key={value}><input type="checkbox" checked={draftFilters.levels.includes(value)} onChange={()=>toggleDraft("levels",value)}/><span><Check/>{value}</span></label>)}</fieldset>
+      <fieldset><legend>Lifecycle</legend>{options.lifecycles.map(value=><label key={value}><input type="checkbox" checked={draftFilters.lifecycles.includes(value)} onChange={()=>toggleDraft("lifecycles",value)}/><span><Check/>{value}</span></label>)}</fieldset>
+    </div><footer><button className="button button-white" onClick={()=>{setDraftFilters(emptyFilters);setPathwayFilterQuery("");setPathwayFilterExpanded(false)}}>Clear all</button><span>{Object.values(draftFilters).reduce((sum,items)=>sum+items.length,0)} selected</span><button className="button button-primary" onClick={()=>{setFilters(draftFilters);setFilterOpen(false)}}>Apply filters <ArrowRight/></button></footer></aside></div>,document.body)}
   </section>;
 }
 
@@ -656,7 +639,7 @@ function CMSFunctionalSection({active,notify}:{active:string;notify:(x:string)=>
     const openCreate=()=>{setEditingPath(null);setModal("Pathways")};
     const pathwayHeading=<div className="cms-heading"><div><span className="today">Atlas CMS · Federal Service</span><h1>Pathways</h1><p>{cmsDescriptions.Pathways}</p></div><button className="button button-primary" onClick={openCreate}><Plus/> Create pathway</button></div>;
     const savePath=(next:ManagedPathway)=>{const existing=managedPaths.findIndex(item=>item.code===next.code);const updated=existing>=0?managedPaths.map((item,index)=>index===existing?next:item):[...managedPaths,next];setManagedPaths(updated);localStorage.setItem("atlas-managed-pathways-v1",JSON.stringify(updated));setSelected(existing>=0?existing:updated.length-1);setModal("");setEditingPath(null);notify(`${next.title} saved successfully`)};
-    return <section>{pathwayHeading}<div className="catalogue-admin-summary"><article><b>{managedPaths.length}</b><span>learning pathways</span></article><article><b>{managedPaths.reduce((sum,item)=>sum+item.courses.length,0)}</b><span>catalogue courses</span></article><article><b>{managedPaths.reduce((sum,item)=>sum+item.courses.reduce((count,course)=>count+course.lessonCount,0),0)}</b><span>authored lessons</span></article></div><div className="split-workspace scroll-reveal"><div className="record-list"><div className="record-toolbar"><b>Managed Atlas pathways</b><span>{managedPaths.filter(item=>item.status==="Published").length} published</span></div>{managedPaths.map((item,i)=><button className={selected===i?"selected":""} key={item.code} onClick={()=>setSelected(i)}><span className="record-icon"><Target/></span><span><b>{item.code} · {item.title}</b><small>{item.courses.length} courses · {item.courses.reduce((sum,course)=>sum+course.lessonCount,0)} lessons</small></span><em>{item.status}</em><ChevronRight/></button>)}</div>{path&&<article className="record-inspector"><span className="today">{path.code} · SELECTED PATHWAY</span><h2>{path.title}</h2><p>{path.audience}</p><div className="pathway-meta"><span>{path.sequence}</span><span>{path.status}</span></div><div className="path-course-stack">{path.courses.map(course=><button key={course.code} onClick={()=>{const match=atlas.courses.find(item=>item.code===course.code);if(match)window.location.assign(`/cms/course/${match.id}`)}}><span><b>{course.code} · {course.title}</b><small>{course.lessonCount} lessons</small></span><ChevronRight/></button>)}</div><button className="button button-primary" onClick={()=>{setEditingPath(path);setModal("Pathways")}}><Pencil/> Edit pathway</button></article>}</div>{modal==="Pathways"&&<PathwayEditor pathway={editingPath} catalogue={atlas.courses} onClose={()=>{setModal("");setEditingPath(null)}} onSave={savePath}/>}</section>;
+    return <section>{pathwayHeading}<div className="catalogue-admin-summary"><article><b>{managedPaths.length}</b><span>learning pathways</span></article><article><b>{managedPaths.reduce((sum,item)=>sum+item.courses.length,0)}</b><span>catalogue courses</span></article><article><b>{managedPaths.reduce((sum,item)=>sum+item.courses.reduce((count,course)=>count+course.lessonCount,0),0)}</b><span>authored lessons</span></article></div><div className="split-workspace scroll-reveal"><div className="record-list"><div className="record-toolbar"><b>Managed Atlas pathways</b><span>{managedPaths.filter(item=>item.status==="Published").length} published</span></div>{managedPaths.map((item,i)=><button className={selected===i?"selected":""} key={item.code} onClick={()=>setSelected(i)}><span className="record-icon"><Target/></span><span><b>{item.code} · {item.title}</b><small>{item.courses.length} courses · {item.courses.reduce((sum,course)=>sum+course.lessonCount,0)} lessons</small></span><em>{item.status}</em><ChevronRight/></button>)}</div>{path&&<article className="record-inspector"><span className="today">{path.code} · SELECTED PATHWAY</span><h2>{path.title}</h2><p>{path.audience}</p><div className="pathway-meta"><span>{path.sequence}</span><span>{path.status}</span></div><div className="path-course-stack">{path.courses.map(course=><button key={course.code} onClick={()=>{const match=atlas.courses.find(item=>item.code===course.code);if(match)window.location.assign(`/cms/course/${match.id}`)}}><span><b>{course.code} · {course.title}</b><small>{course.lessonCount} lessons</small></span><ChevronRight/></button>)}</div><div className="pathway-inspector-actions"><button className="button button-white" onClick={()=>{localStorage.setItem("atlas-lms-open-tab","Pathways");localStorage.setItem("atlas-lms-open-pathway",path.code);window.location.assign("/learn")}}><Eye/> Preview pathway</button><button className="button button-primary" onClick={()=>{setEditingPath(path);setModal("Pathways")}}><Pencil/> Edit pathway</button></div></article>}</div>{modal==="Pathways"&&<PathwayEditor pathway={editingPath} catalogue={atlas.courses} onClose={()=>{setModal("");setEditingPath(null)}} onSave={savePath}/>}</section>;
   }
   if(active in records) {
     const rows=records[active as keyof typeof records];
@@ -702,7 +685,7 @@ type OrganisationRecord={
   administrators:OrganisationAdministrator[]; staff:OrganisationStaff[];
 };
 type OrganisationAdministrator={id:string;name:string;email:string;role:"Workspace owner"|"Administrator"|"Analyst"};
-type OrganisationStaff={id:string;firstName:string;lastName:string;email:string;department:string;jobTitle:string;managerEmail:string;status:"Active"|"Invited"};
+type OrganisationStaff={id:string;firstName:string;lastName:string;email:string;department:string;jobTitle:string;managerEmail:string;status:"Active"|"Invited"|"Suspended"|"Deactivated"};
 const seedStaff:OrganisationStaff[]=[
   {id:"NRS-001",firstName:"Amara",lastName:"Okafor",email:"amara.okafor@nrs.gov.ng",department:"Digital Services",jobTitle:"Policy Analyst",managerEmail:"ifeoma.kalu@nrs.gov.ng",status:"Active"},
   {id:"NRS-002",firstName:"Chinedu",lastName:"Okafor",email:"chinedu.okafor@nrs.gov.ng",department:"Operations",jobTitle:"Team Lead",managerEmail:"ifeoma.kalu@nrs.gov.ng",status:"Active"},
@@ -764,13 +747,16 @@ function OrganisationWizard({onClose,onCreate}:{onClose:()=>void;onCreate:(recor
 function WorkspaceManager({organisation,onClose,onSave}:{organisation:OrganisationRecord;onClose:()=>void;onSave:(record:OrganisationRecord)=>void}){
   const [tab,setTab]=useState("Overview"); const [draft,setDraft]=useState(organisation); const [importOpen,setImportOpen]=useState(false);
   const [adminName,setAdminName]=useState(""); const [adminEmail,setAdminEmail]=useState("");
+  const [staffName,setStaffName]=useState(""); const [staffEmail,setStaffEmail]=useState(""); const [staffDepartment,setStaffDepartment]=useState("General");
   const update=<K extends keyof OrganisationRecord>(key:K,value:OrganisationRecord[K])=>setDraft(current=>({...current,[key]:value}));
+  const inviteStaff=()=>{const [firstName,...rest]=staffName.trim().split(/\s+/);update("staff",[...draft.staff,{id:`staff-${Date.now()}`,firstName,lastName:rest.join(" ")||"—",email:staffEmail,department:staffDepartment,jobTitle:"Staff learner",managerEmail:draft.owner,status:"Invited"}]);setStaffName("");setStaffEmail("")};
+  const setStaffStatus=(id:string,status:OrganisationStaff["status"])=>update("staff",draft.staff.map(person=>person.id===id?{...person,status}:person));
   return createPortal(<div className="modal-backdrop workspace-flow-backdrop"><div className="workspace-flow-modal workspace-manager">
     <header><span style={{background:draft.color}}>{draft.name[0]}</span><div><small>{draft.code} · ORGANISATION WORKSPACE</small><h2>{draft.name}</h2></div><button onClick={onClose} aria-label="Close"><X/></button></header>
     <nav>{["Overview","People & roles","Branding","Authentication","Learning policies"].map(label=><button key={label} className={tab===label?"active":""} onClick={()=>setTab(label)}><span>{label}</span></button>)}</nav>
     <main><div className="workspace-flow-form"><span className="today">{tab.toUpperCase()}</span><h3>{tab==="Overview"?"Workspace identity and ownership.":tab==="People & roles"?"Administrators govern; staff learn.":tab==="Branding"?"How this workspace appears to learners.":tab==="Authentication"?"How people securely enter Atlas.":"Defaults applied to new learning."}</h3><div className="workspace-form-grid">
       {tab==="Overview"&&<><label className="wide">Organisation name<input value={draft.name} onChange={e=>update("name",e.target.value)}/></label><label>Workspace code<input value={draft.code} onChange={e=>update("code",e.target.value)}/></label><label>Sector<select value={draft.sector} onChange={e=>update("sector",e.target.value)}><option>Federal agency</option><option>State government</option><option>Professional services</option><option>Technology</option><option>Education</option></select></label><label className="wide">Primary administrator<input value={draft.owner} onChange={e=>update("owner",e.target.value)}/></label></>}
-      {tab==="People & roles"&&<div className="workspace-people wide"><section><header><div><small>WORKSPACE ADMINISTRATORS</small><h4>Private analytics and management access</h4></div><span>{draft.administrators.length} administrators</span></header><div className="workspace-admin-list">{draft.administrators.map(admin=><article key={admin.id}><i>{admin.name.split(" ").map(part=>part[0]).join("").slice(0,2)}</i><span><b>{admin.name}</b><small>{admin.email}</small></span><em>{admin.role}</em>{admin.role!=="Workspace owner"&&<button onClick={()=>update("administrators",draft.administrators.filter(item=>item.id!==admin.id))}><X/></button>}</article>)}</div><div className="add-admin-row"><input value={adminName} onChange={e=>setAdminName(e.target.value)} placeholder="Administrator name"/><input value={adminEmail} onChange={e=>setAdminEmail(e.target.value)} placeholder="name@organisation.com" type="email"/><button disabled={!adminName.trim()||!adminEmail.includes("@")} onClick={()=>{update("administrators",[...draft.administrators,{id:`adm-${Date.now()}`,name:adminName,email:adminEmail,role:"Administrator"}]);setAdminName("");setAdminEmail("")}}><Plus/> Add administrator</button></div></section><section><header><div><small>LEARNER DIRECTORY</small><h4>Staff who can receive and complete learning</h4></div><span>{draft.staff.length} imported staff</span></header><div className="staff-import-actions"><button onClick={()=>downloadStaffTemplate()}><Download/> Download CSV template</button><button className="button button-primary" onClick={()=>setImportOpen(true)}><Upload/> Import staff CSV</button></div>{draft.staff.length?<div className="workspace-staff-preview">{draft.staff.slice(0,5).map(person=><p key={person.id}><span><b>{person.firstName} {person.lastName}</b><small>{person.jobTitle} · {person.department}</small></span><em>{person.status}</em></p>)}{draft.staff.length>5&&<small>+ {draft.staff.length-5} more staff members</small>}</div>:<div className="workspace-empty-people"><Users/><b>No staff added yet</b><p>Download the template, add staff data, then import the completed CSV.</p></div>}</section></div>}
+      {tab==="People & roles"&&<div className="workspace-people wide"><section><header><div><small>WORKSPACE ADMINISTRATORS</small><h4>Private analytics and management access</h4></div><span>{draft.administrators.length} administrators</span></header><div className="workspace-admin-list">{draft.administrators.map(admin=><article key={admin.id}><i>{admin.name.split(" ").map(part=>part[0]).join("").slice(0,2)}</i><span><b>{admin.name}</b><small>{admin.email}</small></span><em>{admin.role}</em>{admin.role!=="Workspace owner"&&<button onClick={()=>update("administrators",draft.administrators.filter(item=>item.id!==admin.id))}><X/></button>}</article>)}</div><div className="add-admin-row"><input value={adminName} onChange={e=>setAdminName(e.target.value)} placeholder="Administrator name"/><input value={adminEmail} onChange={e=>setAdminEmail(e.target.value)} placeholder="name@organisation.com" type="email"/><button disabled={!adminName.trim()||!adminEmail.includes("@")} onClick={()=>{update("administrators",[...draft.administrators,{id:`adm-${Date.now()}`,name:adminName,email:adminEmail,role:"Administrator"}]);setAdminName("");setAdminEmail("")}}><Plus/> Add administrator</button></div></section><section><header><div><small>LEARNER DIRECTORY</small><h4>Invite staff and manage account state</h4></div><span>{draft.staff.length} staff accounts</span></header><div className="add-admin-row staff-invite-row"><input value={staffName} onChange={e=>setStaffName(e.target.value)} placeholder="Staff name"/><input value={staffEmail} onChange={e=>setStaffEmail(e.target.value)} placeholder="staff@organisation.com" type="email"/><input value={staffDepartment} onChange={e=>setStaffDepartment(e.target.value)} placeholder="Department"/><button disabled={!staffName.trim()||!staffEmail.includes("@")} onClick={inviteStaff}><Plus/> Send invitation</button></div><div className="staff-import-actions"><button onClick={()=>downloadStaffTemplate()}><Download/> Download CSV template</button><button className="button button-primary" onClick={()=>setImportOpen(true)}><Upload/> Import staff CSV</button></div>{draft.staff.length?<div className="workspace-staff-preview">{draft.staff.map(person=><p key={person.id}><span><b>{person.firstName} {person.lastName}</b><small>{person.email} · {person.department}</small></span><select aria-label={`Account state for ${person.firstName} ${person.lastName}`} value={person.status} onChange={event=>setStaffStatus(person.id,event.target.value as OrganisationStaff["status"])}><option>Invited</option><option>Active</option><option>Suspended</option><option>Deactivated</option></select></p>)}</div>:<div className="workspace-empty-people"><Users/><b>No staff added yet</b><p>Invite one person or import the staff CSV template in bulk.</p></div>}</section></div>}
       {tab==="Branding"&&<><label className="wide">Learning domain<input value={draft.domain} onChange={e=>update("domain",e.target.value)}/></label><fieldset className="wide"><legend>Workspace colour</legend><div className="workspace-colors">{["#dcd5ff","#cceffc","#d5f7d9","#ffd9e8","#ffe6ad","#f2dcff"].map(item=><button className={draft.color===item?"selected":""} style={{background:item}} key={item} onClick={()=>update("color",item)}>{draft.color===item&&<Check/>}</button>)}</div></fieldset></>}
       {tab==="Authentication"&&<><label className="wide">Sign-in method<select value={draft.signIn} onChange={e=>update("signIn",e.target.value)}><option>Cognito + organisation SSO</option><option>Email and password</option><option>Invitation only</option></select></label><button className={`workspace-toggle wide ${draft.mfa?"on":""}`} onClick={()=>update("mfa",!draft.mfa)}><ShieldCheck/><span><b>Require multi-factor authentication</b><small>Applies to workspace administrators and authors</small></span><i/></button></>}
       {tab==="Learning policies"&&<><label>Default access<select value={draft.defaultAccess} onChange={e=>update("defaultAccess",e.target.value)}><option>Required learning</option><option>Assigned learning</option><option>Open catalogue</option><option>Recommended</option></select></label><label>Certificate issuer<input value={draft.issuer} onChange={e=>update("issuer",e.target.value)}/></label><label>Locale<select value={draft.locale} onChange={e=>update("locale",e.target.value)}><option>English (Nigeria)</option><option>English (United Kingdom)</option><option>French</option></select></label><label>Timezone<select value={draft.timezone} onChange={e=>update("timezone",e.target.value)}><option>Africa/Lagos</option><option>UTC</option><option>Africa/Accra</option></select></label></>}
@@ -806,8 +792,9 @@ function StaffAnalytics(){
   const departmentsSummary=Array.from(new Set(staff.map(person=>person.department))).map((name,index)=>({name,people:staff.filter(person=>person.department===name).length,completion:[91,78,74,86,69][index%5]}));
   const visibleStaff=staff.filter(person=>`${person.firstName} ${person.lastName} ${person.email} ${person.department} ${person.jobTitle}`.toLowerCase().includes(query.toLowerCase()));
   const staffMetric=(person:OrganisationStaff)=>{const index=Math.max(0,staff.findIndex(item=>item.id===person.id));return{completion:[92,78,64,100,46][index%5],courses:[4,3,5,6,2][index%5],hours:[18.5,12.2,9.4,24.8,5.6][index%5],credential:[3,2,1,4,0][index%5],risk:["On track","Due soon","Needs support","Complete","Overdue"][index%5]}};
-  if(view==="people") return <section className="staff-people-view"><header className="staff-people-heading"><button onClick={()=>{setView("overview");setSelectedStaff(null)}}><ChevronRight/> Back to workforce overview</button><div><span className="kicker">PRIVATE ADMINISTRATOR VIEW</span><h2>Staff learning analytics.</h2><p>Review each staff member’s assigned learning, progress and credential status without leaving the organisation LMS.</p></div></header><div className="staff-people-toolbar"><label><Search/><input value={query} onChange={event=>setQuery(event.target.value)} placeholder="Search staff, department or role"/></label><span><b>{visibleStaff.length}</b> records shown</span><button><Download/> Export staff analytics</button></div><div className="staff-people-layout"><article className="staff-people-table"><header><span>Staff member</span><span>Department</span><span>Progress</span><span>Status</span><span/></header>{visibleStaff.map(person=>{const metric=staffMetric(person);return <button key={person.id} className={selectedStaff?.id===person.id?"active":""} onClick={()=>setSelectedStaff(person)}><span className="staff-person-cell"><i>{person.firstName[0]}{person.lastName[0]}</i><span><b>{person.firstName} {person.lastName}</b><small>{person.jobTitle}</small></span></span><span><b>{person.department}</b><small>{person.status}</small></span><span className="staff-progress-cell"><i><em style={{width:`${metric.completion}%`}}/></i><b>{metric.completion}%</b></span><span className={`staff-risk staff-risk-${metric.risk.toLowerCase().replaceAll(" ","-")}`}>{metric.risk}</span><ChevronRight/></button>})}</article><aside className="staff-person-detail">{selectedStaff?(()=>{const metric=staffMetric(selectedStaff);return <><div className="staff-detail-identity"><i>{selectedStaff.firstName[0]}{selectedStaff.lastName[0]}</i><span><small>STAFF LEARNING RECORD</small><h3>{selectedStaff.firstName} {selectedStaff.lastName}</h3><p>{selectedStaff.jobTitle} · {selectedStaff.department}</p></span></div><div className="staff-detail-metrics"><span><b>{metric.completion}%</b><small>overall progress</small></span><span><b>{metric.courses}</b><small>assigned courses</small></span><span><b>{metric.hours}h</b><small>learning time</small></span><span><b>{metric.credential}</b><small>credentials</small></span></div><div className="staff-detail-course"><small>CURRENT LEARNING</small><h4>AI for Smarter Public Service</h4><p>Module 4 of 6 · Last active 2 days ago</p><i><em style={{width:`${metric.completion}%`}}/></i></div><button className="button button-dark">View full learning record <ArrowRight/></button></>})():<div className="staff-detail-empty"><Users/><h3>Select a staff member</h3><p>Their progress, assignments and credentials will appear here.</p></div>}</aside></div><div className="staff-privacy-note"><ShieldCheck/><div><b>LMS-only organisation administration</b><p>This private view is available to authorised organisation administrators. It does not grant access to the Von Newman CMS.</p></div></div></section>;
-  return <section className="staff-analytics-view"><div className="staff-analytics-hero"><div><span className="kicker">PRIVATE ADMINISTRATOR VIEW</span><h2>Your workforce learning pulse.</h2><p>Organisation-wide progress for National Revenue Service. Individual learner access remains role-controlled and auditable.</p></div><span><ShieldCheck/><b>Administrator only</b><small>Not visible to staff learners</small></span></div><div className="staff-analytics-stats scroll-reveal"><article><Users/><span><small>Staff directory</small><b>{Math.max(staff.length,2480).toLocaleString()}</b><em>{staff.filter(item=>item.status==="Invited").length} pending invitations</em></span></article><article><CheckCircle2/><span><small>Mandatory compliance</small><b>91%</b><em>↑ 3.8% this month</em></span></article><article><Clock3/><span><small>Learning this month</small><b>6,824h</b><em>2.75 hours per staff member</em></span></article><article><Award/><span><small>Credentials issued</small><b>146</b><em>14 renewals due</em></span></article></div><div className="staff-analytics-grid scroll-reveal"><article><header><div><small>DEPARTMENT PROGRESS</small><h3>Completion across your teams</h3></div><button><Download/> Export CSV</button></header>{departmentsSummary.map(item=><div className="department-analytics-row" key={item.name}><span><b>{item.name}</b><small>{item.people} directory records</small></span><i><em style={{width:`${item.completion}%`}}/></i><strong>{item.completion}%</strong></div>)}</article><aside><small>NEEDS ATTENTION</small><h3>Where administrators can help</h3><div><span>77</span><p><b>Overdue learners</b><small>Mandatory deadlines have passed</small></p></div><div><span>34</span><p><b>Inactive for 30+ days</b><small>Consider a targeted reminder</small></p></div><div><span>14</span><p><b>Renewals approaching</b><small>Credentials expire this month</small></p></div><button onClick={()=>setView("people")}>Open people management<ArrowRight/></button></aside></div><div className="staff-privacy-note"><ShieldCheck/><div><b>Private by organisation and role</b><p>Only workspace owners, administrators and authorised analysts can access aggregate staff analytics. Learners see only their own record.</p></div></div></section>;
+  const exportStaff=()=>{const rows=["employee_id,name,email,department,account_state,completion,courses,hours,credentials,risk",...visibleStaff.map(person=>{const metric=staffMetric(person);return [person.id,`${person.firstName} ${person.lastName}`,person.email,person.department,person.status,metric.completion,metric.courses,metric.hours,metric.credential,metric.risk].map(value=>`"${String(value).replaceAll('"','""')}"`).join(",")})];const url=URL.createObjectURL(new Blob([rows.join("\n")],{type:"text/csv"}));const link=document.createElement("a");link.href=url;link.download="atlas-staff-learning-analytics.csv";link.click();URL.revokeObjectURL(url)};
+  if(view==="people") return <section className="staff-people-view"><header className="staff-people-heading"><button onClick={()=>{setView("overview");setSelectedStaff(null)}}><ChevronRight/> Back to workforce overview</button><div><span className="kicker">PRIVATE ADMINISTRATOR VIEW</span><h2>Staff learning analytics.</h2><p>Review each staff member’s assigned learning, progress and credential status without leaving the organisation LMS.</p></div></header><div className="staff-people-toolbar"><label><Search/><input value={query} onChange={event=>setQuery(event.target.value)} placeholder="Search staff, department or role"/></label><span><b>{visibleStaff.length}</b> records shown</span><button onClick={exportStaff}><Download/> Export staff analytics</button></div><div className="staff-people-layout"><article className="staff-people-table"><header><span>Staff member</span><span>Department</span><span>Progress</span><span>Status</span><span/></header>{visibleStaff.map(person=>{const metric=staffMetric(person);return <button key={person.id} className={selectedStaff?.id===person.id?"active":""} onClick={()=>setSelectedStaff(person)}><span className="staff-person-cell"><i>{person.firstName[0]}{person.lastName[0]}</i><span><b>{person.firstName} {person.lastName}</b><small>{person.jobTitle}</small></span></span><span><b>{person.department}</b><small>{person.status}</small></span><span className="staff-progress-cell"><i><em style={{width:`${metric.completion}%`}}/></i><b>{metric.completion}%</b></span><span className={`staff-risk staff-risk-${metric.risk.toLowerCase().replaceAll(" ","-")}`}>{metric.risk}</span><ChevronRight/></button>})}</article><aside className="staff-person-detail">{selectedStaff?(()=>{const metric=staffMetric(selectedStaff);return <><div className="staff-detail-identity"><i>{selectedStaff.firstName[0]}{selectedStaff.lastName[0]}</i><span><small>STAFF LEARNING RECORD</small><h3>{selectedStaff.firstName} {selectedStaff.lastName}</h3><p>{selectedStaff.jobTitle} · {selectedStaff.department}</p></span></div><div className="staff-detail-metrics"><span><b>{metric.completion}%</b><small>overall progress</small></span><span><b>{metric.courses}</b><small>assigned courses</small></span><span><b>{metric.hours}h</b><small>learning time</small></span><span><b>{metric.credential}</b><small>credentials</small></span></div><div className="staff-detail-course"><small>CURRENT LEARNING</small><h4>AI for Smarter Public Service</h4><p>Module 4 of 6 · Last active 2 days ago</p><i><em style={{width:`${metric.completion}%`}}/></i></div></>})():<div className="staff-detail-empty"><Users/><h3>Select a staff member</h3><p>Their progress, assignments and credentials will appear here.</p></div>}</aside></div><div className="staff-privacy-note"><ShieldCheck/><div><b>LMS-only organisation administration</b><p>This private view is available to authorised organisation administrators. It does not grant access to the Von Newman CMS.</p></div></div></section>;
+  return <section className="staff-analytics-view"><div className="staff-analytics-hero"><div><span className="kicker">PRIVATE ADMINISTRATOR VIEW</span><h2>Your workforce learning pulse.</h2><p>Organisation-wide progress for National Revenue Service. Individual learner access remains role-controlled and auditable.</p></div><span><ShieldCheck/><b>Administrator only</b><small>Not visible to staff learners</small></span></div><div className="staff-analytics-stats scroll-reveal"><article><Users/><span><small>Staff directory</small><b>{Math.max(staff.length,2480).toLocaleString()}</b><em>{staff.filter(item=>item.status==="Invited").length} pending invitations</em></span></article><article><CheckCircle2/><span><small>Mandatory compliance</small><b>91%</b><em>↑ 3.8% this month</em></span></article><article><Clock3/><span><small>Learning this month</small><b>6,824h</b><em>2.75 hours per staff member</em></span></article><article><Award/><span><small>Credentials issued</small><b>146</b><em>14 renewals due</em></span></article></div><div className="staff-analytics-grid scroll-reveal"><article><header><div><small>DEPARTMENT PROGRESS</small><h3>Completion across your teams</h3></div><button onClick={exportStaff}><Download/> Export CSV</button></header>{departmentsSummary.map(item=><div className="department-analytics-row" key={item.name}><span><b>{item.name}</b><small>{item.people} directory records</small></span><i><em style={{width:`${item.completion}%`}}/></i><strong>{item.completion}%</strong></div>)}</article><aside><small>NEEDS ATTENTION</small><h3>Where administrators can help</h3><div><span>77</span><p><b>Overdue learners</b><small>Mandatory deadlines have passed</small></p></div><div><span>34</span><p><b>Inactive for 30+ days</b><small>Consider a targeted reminder</small></p></div><div><span>14</span><p><b>Renewals approaching</b><small>Credentials expire this month</small></p></div><button onClick={()=>setView("people")}>Open people management<ArrowRight/></button></aside></div><div className="staff-privacy-note"><ShieldCheck/><div><b>Private by organisation and role</b><p>Only workspace owners, administrators and authorised analysts can access aggregate staff analytics. Learners see only their own record.</p></div></div></section>;
 }
 
 function AssignmentWorkspace({heading,notify}:{heading:React.ReactNode;notify:(x:string)=>void}) {
@@ -888,9 +875,23 @@ function QuickCreate({title,onClose,onSave}:{title:string;onClose:()=>void;onSav
   return <div className="modal-backdrop"><div className="quick-modal"><header><div><span className="modal-icon"><Plus/></span><h2>{title}</h2></div><button onClick={onClose}><X/></button></header><div><label>Title<input autoFocus placeholder={`Enter ${title.toLowerCase()} title`}/></label><label>Description<textarea placeholder="Add clear purpose and ownership details"/></label><label>Organisation access<select><option>Federal Service workspace</option><option>All organisations</option><option>Selected organisations</option></select></label></div><footer><button className="button button-white" onClick={onClose}>Cancel</button><button className="button button-primary" onClick={onSave}>Save draft</button></footer></div></div>;
 }
 
-function CourseRow({course,custom,onManage}:{course?:AtlasCourse;custom?:boolean;onManage?:()=>void}) {
+function CourseRecord({course,onClose,onEdit}:{course:AtlasCourse;onClose:()=>void;onEdit:()=>void}) {
+  const lessonCount=course.curriculum.reduce((sum,module)=>sum+module.lessons.length,0);
+  const lessonQuizCount=course.curriculum.reduce((sum,module)=>sum+module.lessons.filter(lesson=>lesson.knowledgeCheck).length,0);
+  const moduleQuizCount=course.curriculum.filter(module=>module.quiz).length;
+  return createPortal(<div className="course-record-backdrop" onMouseDown={onClose}><section className="course-record" onMouseDown={event=>event.stopPropagation()} aria-label={`${course.title} course details`}>
+    <header><button className="course-record-close" onClick={onClose} aria-label="Close course details"><X/></button><div className="course-record-identity"><i style={{background:course.color,color:course.accent}}>{course.art}</i><div><span className="today">{course.code} · {course.pathTitle}</span><h2>{course.title}</h2><p>{course.description}</p></div></div><div className="course-record-actions"><button className="button button-white" onClick={()=>window.location.assign(`/learn/course/${course.id}`)}><Eye/> Preview in LMS</button><button className="button button-primary" onClick={onEdit}><Pencil/> Edit course</button></div></header>
+    <div className="course-record-status"><span className={`publish-status ${course.lifecycle==="Published"?"fresh":course.lifecycle==="Scheduled"?"scheduled":""}`}>● {course.lifecycle}</span><span><Users/> {course.learners.toLocaleString()} learners</span><span><Clock3/> {course.duration}</span><span><Library/> {course.curriculum.length} modules</span><span><BookOpen/> {lessonCount} lessons</span></div>
+    <div className="course-record-body"><main><section className="course-record-section"><div className="course-record-section-heading"><div><span className="today">COURSE CURRICULUM</span><h3>What learners will experience</h3></div><span>{course.curriculum.length} modules · {lessonCount} lessons</span></div><div className="course-record-modules">{course.curriculum.map((module,moduleIndex)=><article key={module.code}><div className="course-record-module-title"><i>{String(moduleIndex+1).padStart(2,"0")}</i><span><small>{module.code}</small><b>{module.title}</b>{module.objective&&<p>{module.objective}</p>}</span>{module.quiz&&<em><ShieldCheck/> Module quiz</em>}</div><ol>{module.lessons.map(lesson=><li key={lesson.code}><span><small>{lesson.code}</small><b>{lesson.title}</b></span><span>{lesson.type||"Lesson"}{lesson.duration?` · ${lesson.duration}`:""}{lesson.knowledgeCheck&&<em><FileQuestion/> Lesson quiz</em>}</span></li>)}</ol></article>)}</div></section></main>
+      <aside><section><span className="today">DELIVERY SETUP</span><h3>Course configuration</h3><dl><div><dt>Organisation</dt><dd>{course.organisation}</dd></div><div><dt>Audience</dt><dd>{course.audience}</dd></div><div><dt>Access</dt><dd>{course.status}</dd></div><div><dt>Level</dt><dd>{course.level}</dd></div><div><dt>Instructor</dt><dd>{course.instructor}</dd></div><div><dt>Language</dt><dd>{course.language||"English (Nigeria)"}</dd></div></dl></section><section><span className="today">ASSESSMENT & CREDENTIAL</span><div className="course-record-check"><ShieldCheck/><span><b>{lessonQuizCount} lesson quizzes</b><small>{moduleQuizCount} module quizzes</small></span></div><div className="course-record-check"><FileQuestion/><span><b>{course.finalAssessment?course.finalAssessment.title:"No final assessment"}</b><small>{course.finalAssessment?`${course.finalAssessment.questionsShown} questions · ${course.finalAssessment.passMark}% pass mark`:"Optional for this course"}</small></span></div><div className="course-record-check"><Award/><span><b>{course.certificatePolicy?.enabled||course.certificateEnabled?"Certificate enabled":"No certificate"}</b><small>{course.certificatePolicy?.template||"Course completion credential"}</small></span></div></section></aside>
+    </div>
+  </section></div>,document.body);
+}
+
+function CourseRow({course,custom,onOpen,onManage}:{course?:AtlasCourse;custom?:boolean;onOpen?:()=>void;onManage?:()=>void}) {
   const c=course||{title:"Service Design for Everyone",category:"Public Service",color:"#d5f7d9",accent:"#238d4c",art:"✺",status:"Available",progress:0,duration:"3h",modules:5,id:"new"};
-  return <div className="table-row clickable-course-row" onClick={onManage} role="button" tabIndex={0} onKeyDown={event=>{if(event.key==="Enter")onManage?.()}}><span className="table-course"><i style={{background:c.color,color:c.accent}}>{c.art}</i><span><b>{c.title}</b><small>{course?.code||"PUB-03.3"} · {c.category} · {c.modules} modules</small></span></span><span><em className={`publish-status ${course?.published||custom?"fresh":""}`}>● {course?.published||custom?"Published":"Draft"}</em></span><span>{course?.organisation||"Federal Service"}</span><span>{course?.learners.toLocaleString()||"428"}</span><span><b>{c.progress ? `${c.progress}%` : "—"}</b></span><span>Today</span><button aria-label={`Manage ${c.title}`} onClick={event=>{event.stopPropagation();onManage?.()}}><MoreHorizontal size={17}/></button></div>;
+  const lifecycle=course?.lifecycle||(custom?"Published":"Draft");
+  return <div className="table-row clickable-course-row" onClick={onOpen||onManage} role="button" tabIndex={0} onKeyDown={event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();(onOpen||onManage)?.()}}}><span className="table-course"><i style={{background:c.color,color:c.accent}}>{c.art}</i><span><b>{c.title}</b><small>{course?.code||"PUB-03.3"} · {c.category} · {c.modules} modules</small></span></span><span><em className={`publish-status ${lifecycle==="Published"?"fresh":lifecycle==="Scheduled"?"scheduled":""}`}>● {lifecycle}</em></span><span>{course?.organisation||"Federal Service"}</span><span>{course?.learners.toLocaleString()||"428"}</span><span><b>{c.progress ? `${c.progress}%` : "—"}</b></span><span>Today</span><button aria-label={`Edit ${c.title}`} title="Edit course" onClick={event=>{event.stopPropagation();onManage?.()}}><Pencil size={16}/></button></div>;
 }
 
 function LegacyCourseModal({onClose,onPublish}:{onClose:()=>void;onPublish:(course:AtlasCourse)=>void}) {

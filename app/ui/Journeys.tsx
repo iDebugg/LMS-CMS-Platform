@@ -18,9 +18,9 @@ import { CertificateDesign } from "./CertificateDesign";
 gsap.registerPlugin(ScrollTrigger,useGSAP);
 
 const demoUsers = [
-  { initials: "AO", name: "Amara Okafor", role: "Learner", email: "amara.okafor@federalservice.demo", color: "#ffd5c7" },
-  { initials: "IK", name: "Ifeoma Kalu", role: "Organisation administrator", email: "ifeoma.kalu@federalservice.demo", color: "#dcd5ff" },
-  { initials: "DM", name: "David Mensah", role: "Course author", email: "david.mensah@atlas.demo", color: "#cef2e5" },
+  { initials: "AO", name: "Amara Okafor", role: "Learner", accessRole: "learner", email: "amara.okafor@federalservice.demo", color: "#ffd5c7" },
+  { initials: "IK", name: "Ifeoma Kalu", role: "Organisation administrator", accessRole: "organisation-admin", email: "ifeoma.kalu@federalservice.demo", color: "#dcd5ff" },
+  { initials: "DM", name: "David Mensah", role: "Von Newman content administrator", accessRole: "platform-admin", email: "david.mensah@atlas.demo", color: "#cef2e5" },
 ];
 
 const courseModules = [
@@ -158,8 +158,11 @@ export function AuthExperience() {
     if (!email || !password) { setError("Enter your email and password to continue."); return; }
     setLoading(true);
     window.setTimeout(() => {
-      localStorage.setItem("atlas-session", JSON.stringify({ email, name: email.includes("ifeoma") ? "Ifeoma Kalu" : "Amara Okafor", organisation: "Federal Service Learning Directorate" }));
-      if (email.includes("ifeoma") || email.includes("david")) window.location.href = "/admin";
+      const profile=demoUsers.find(user=>user.email===email);
+      const role=profile?.accessRole||"learner";
+      localStorage.setItem("atlas-session", JSON.stringify({ email, name: profile?.name||"Amara Okafor", role, organisation: role==="platform-admin"?"Von Newman":"Federal Service Learning Directorate" }));
+      if (role==="platform-admin") window.location.href = "/admin";
+      else if(role==="organisation-admin") { localStorage.setItem("atlas-onboarded","true"); window.location.href="/learn"; }
       else window.location.href = localStorage.getItem("atlas-onboarded") ? "/learn" : "/onboarding";
     }, 850);
   };

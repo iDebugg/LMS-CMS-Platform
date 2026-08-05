@@ -1,6 +1,6 @@
 /* Landing */
 .landing {
-  overflow: hidden;
+  overflow: clip;
 }
 .public-nav {
   height: 84px;
@@ -642,28 +642,54 @@
   bottom: 15%;
   color: var(--pink);
 }
-.landing footer {
-  background: #111018;
-  color: white;
-  padding: 55px clamp(24px, 7vw, 110px);
+.delivery-story {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: minmax(0, .85fr) minmax(560px, 1.15fr);
+  gap: clamp(54px, 8vw, 130px);
   align-items: center;
-  gap: 25px;
+  background: linear-gradient(135deg, #fff9e9, #f7f4ff 58%, #edfbff);
 }
-.landing footer p {
-  font-size: 12px;
-  color: #8f8d9d;
-  max-width: 380px;
+.delivery-copy h2 {
+  margin: 16px 0 22px;
+  font-size: clamp(42px, 4.4vw, 68px);
+  font-weight: 500;
+  letter-spacing: -.055em;
+  line-height: 1.04;
 }
-.landing footer div {
-  display: flex;
-  gap: 20px;
-  font-size: 11px;
+.delivery-copy p {
+  max-width: 680px;
+  margin: 0 0 30px;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.75;
 }
-.landing footer small {
-  grid-column: 1/-1;
-  padding-top: 25px;
-  border-top: 1px solid #292833;
-  color: #6f6d78;
+.delivery-map {
+  display: grid;
+  grid-template-columns: 1fr 52px 1fr 52px 1fr;
+  align-items: center;
 }
+.delivery-route {
+  display: grid;
+  align-content: space-between;
+  min-height: 250px;
+  padding: 28px;
+  border: 1px solid rgba(38,32,83,.08);
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgba(38,32,83,.08);
+}
+.delivery-route > svg {
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+  border-radius: 15px;
+  background: #eeeaff;
+  color: var(--purple);
+}
+.delivery-route span,.delivery-route b,.delivery-route small { display: block; }
+.delivery-route b { margin-bottom: 9px; font-size: 19px; }
+.delivery-route small { color: var(--muted); font-size: 12px; line-height: 1.55; }
+.delivery-methods { background: #262053; color: #fff; transform: translateY(-28px); }
+.delivery-methods > svg { background: rgba(255,255,255,.12); color: #94ead0; }
+.delivery-methods small { color: #c9c5dc; }
+.delivery-connector { height: 2px; background: #b9b0ec; }
